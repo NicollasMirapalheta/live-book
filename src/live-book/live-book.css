@@ -1,0 +1,1035 @@
+/* =========================================================================
+   Live Book — tema bege + lilas
+   Tudo aqui e sobrescrivel por variavel: troque as custom properties em
+   .lb-root (ou num ancestral) para reaproveitar o componente em outro projeto.
+   ========================================================================= */
+
+.lb-root {
+  --lb-bg: #efe9dd;
+  --lb-bg-deep: #e3dccc;
+  --lb-paper: #fdfbf6;
+  --lb-paper-2: #f7f1e6;
+  --lb-paper-edge: #e9e0cf;
+
+  --lb-ink: #3a3247;
+  --lb-ink-soft: #6f6684;
+  --lb-ink-faint: #a29ab4;
+  --lb-line: #e8e0d0;
+
+  --lb-accent: #7a55d1;
+  --lb-accent-2: #a98bf0;
+  --lb-accent-3: #c9b6fb;
+  --lb-tint: #efe8ff;
+  --lb-crease: #b79bf2;
+
+  /* A CAPA e UM UNICO elemento (a face/pagina .lb-page--cover). Sem placa
+     separada — entao gradiente, imagem, o que for, vale, porque e uma caixa so.
+     Troque esta variavel (ou o background da .lb-page--cover) para redecorar a
+     capa inteira de uma vez. */
+  --lb-cover: linear-gradient(158deg, #8f68e6 0%, #6a44bd 48%, #472a83 100%);
+  /* A PLACA da capa dura vista pela borda/sobra (o "square"). Um tom mais fundo
+     que a capa: e a mesma casca, so que na quina, na sombra da propria espessura.
+     E o que aparece emoldurando as paginas quando o livro esta aberto.
+     VERTICAL (180deg) de proposito: a placa aparece em DUAS metades (lado da capa
+     e lado da contracapa) que se encontram na lombada. Um gradiente diagonal
+     chegaria em pontos diferentes em cada metade e a cor "pularia" na emenda; um
+     vertical depende so da altura — igual dos dois lados — e ainda ignora o
+     espelhamento horizontal da face interna da capa. Emenda invisivel. */
+  --lb-board: linear-gradient(180deg, #6f4fc0 0%, #4f2f96 52%, #33206a 100%);
+  /* quanto a capa ultrapassa as paginas (a "sobra"/square do hardcover). 0 =
+     capa rente as paginas. Sincronizado com BOARD_SQUARE via style inline —
+     este valor e so o fallback. */
+  --lb-cover-square: 26px;
+
+  --lb-radius: 20px;
+  --lb-font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --lb-display: "Fraunces", Georgia, "Times New Roman", serif;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--lb-ink);
+  font-family: var(--lb-font);
+  background:
+    radial-gradient(100% 78% at 14% -8%, #fcf9f2 0%, rgba(252, 249, 242, 0) 50%),
+    radial-gradient(78% 70% at 96% 6%, rgba(231, 222, 255, 0.72) 0%, rgba(231, 222, 255, 0) 56%),
+    radial-gradient(120% 95% at 50% 118%, rgba(79, 61, 120, 0.11) 0%, rgba(79, 61, 120, 0) 52%),
+    linear-gradient(168deg, var(--lb-bg) 0%, var(--lb-bg-deep) 100%);
+}
+
+.lb-root *,
+.lb-root *::before,
+.lb-root *::after {
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------- cabecalho */
+
+.lb-header {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 26px 14px;
+}
+
+.lb-header__id {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 210px;
+}
+
+.lb-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px 10px 10px 3px;
+  background: linear-gradient(140deg, var(--lb-accent-2), var(--lb-accent));
+  box-shadow: 0 4px 12px rgba(122, 85, 209, 0.32);
+}
+
+.lb-header__title {
+  margin: 0;
+  font-family: var(--lb-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lb-header__subtitle {
+  margin: 1px 0 0;
+  color: var(--lb-ink-soft);
+  font-size: 12.5px;
+}
+
+.lb-progress {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 14px;
+  align-items: center;
+  max-width: 620px;
+}
+
+.lb-progress__track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(122, 85, 209, 0.14);
+}
+
+.lb-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--lb-accent-2), var(--lb-accent));
+  transition: width 640ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.lb-progress__tick {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin-left: -1.5px;
+  border-radius: 50%;
+  background: rgba(58, 50, 71, 0.35);
+  transform: translateY(-50%);
+}
+
+.lb-progress__head {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-left: -6.5px;
+  border: 2.5px solid var(--lb-accent);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(122, 85, 209, 0.35);
+  transform: translateY(-50%);
+  transition: left 640ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.lb-progress__label {
+  flex: 0 0 auto;
+  color: var(--lb-ink-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lb-iconbtn {
+  padding: 8px 14px;
+  border: 1px solid rgba(122, 85, 209, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--lb-accent);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.lb-iconbtn:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.lb-iconbtn[aria-pressed="true"] {
+  border-color: rgba(58, 50, 71, 0.16);
+  color: var(--lb-ink-faint);
+}
+
+/* -------------------------------------------------------------------- corpo */
+
+.lb-body {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.lb-viewport {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  /* a folha levantada cresce para fora do palco; recortar aqui evita que ela
+     passe por cima do cabecalho */
+  overflow: hidden;
+}
+
+.lb-root.is-dragging {
+  user-select: none;
+}
+
+/* Perspectiva mora aqui, fora do contexto preserve-3d, e escala junto com o
+   palco para o angulo de camera nao mudar quando a janela encolhe. */
+.lb-stagewrap {
+  position: relative;
+  flex: 0 0 auto;
+  perspective-origin: 50% 46%;
+  /* o deslocamento horizontal (x) e dirigido em tempo real pelo angulo da capa
+     via MotionValue (stageX) — sem transition CSS, para seguir a rotacao (e o
+     arraste) quadro a quadro em vez de animar por conta propria. */
+}
+
+.lb-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  transform-style: preserve-3d;
+}
+
+/* A PLACA da capa dura. Antes era so sombra (inset 0, do tamanho das folhas);
+   por isso, aberto, o livro parecia um livreto — nada emoldurava as paginas.
+   Agora cada metade e a placa de verdade: transborda o miolo pela sobra
+   (--lb-cover-square) no corte (borda externa), no topo e na base — nunca na
+   lombada (o eixo, no centro). Fechado, a capa cobre tudo; aberto, sobra a
+   moldura da placa em volta das paginas. E o que le como capa dura. */
+.lb-well {
+  position: absolute;
+  inset: 0;
+}
+
+.lb-well__half {
+  position: absolute;
+  top: calc(-1 * var(--lb-cover-square));
+  bottom: calc(-1 * var(--lb-cover-square));
+  background: var(--lb-board);
+  /* espessura da placa: fio de luz no topo, sombra funda na base (bisel), mais
+     as sombras de apoio na "mesa" — livro pesado, nao folha solta. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -3px 7px rgba(20, 12, 40, 0.4),
+    0 4px 10px -1px rgba(47, 35, 73, 0.4),
+    0 30px 42px -22px rgba(47, 35, 73, 0.5);
+}
+
+.lb-well__half--left {
+  left: calc(-1 * var(--lb-cover-square));
+  right: 50%;
+  /* quinas externas arredondadas (placa); lombada reta, para as duas metades
+     encostarem sem emenda no centro */
+  border-radius: var(--lb-radius) 0 0 var(--lb-radius);
+}
+
+.lb-well__half--right {
+  left: 50%;
+  right: calc(-1 * var(--lb-cover-square));
+  border-radius: 0 var(--lb-radius) var(--lb-radius) 0;
+}
+
+/* O bloco de paginas afunda na placa: um vinco de sombra ao redor do retangulo
+   do miolo, projetado sobre a moldura da placa. Sem cor propria — so a sombra —
+   e recortado no espaco do miolo (a sobra fica de fora nos 3 lados; rente na
+   lombada). Uma sombra por lado, nao uma por folha: nao encardе a moldura. */
+.lb-well__half::after {
+  content: "";
+  position: absolute;
+  top: var(--lb-cover-square);
+  bottom: var(--lb-cover-square);
+  border-radius: 3px;
+  box-shadow: 0 1px 10px 1px rgba(20, 12, 40, 0.45);
+}
+
+.lb-well__half--left::after {
+  left: var(--lb-cover-square);
+  right: 0;
+}
+
+.lb-well__half--right::after {
+  left: 0;
+  right: var(--lb-cover-square);
+}
+
+.lb-well__spine {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 50%;
+  width: 26px;
+  margin-left: -13px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(58, 43, 76, 0) 0%,
+    rgba(58, 43, 76, 0.3) 42%,
+    rgba(58, 43, 76, 0.42) 50%,
+    rgba(58, 43, 76, 0.3) 58%,
+    rgba(58, 43, 76, 0) 100%
+  );
+  /* opacidade dirigida por MotionValue (spineOpacity) */
+}
+
+/* ------------------------------------------------------------------- folhas */
+
+.lb-leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 560px;
+  height: 760px;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.lb-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* AS DUAS faces da casca (arte externa E guarda interna) transbordam o miolo
+   pela sobra (--lb-cover-square) no topo, base e corte — nunca na lombada
+   (left: 0 = eixo de giro). E a placa da capa dura sendo maior que o miolo.
+   Como a moldura mora na PROPRIA face da capa, ela gira junto com a virada — nao
+   depende de um painel atras que so aparece no fim (era o "some no meio do
+   movimento"). Fio claro nas quinas: dar a face o mesmo material da placa faz a
+   borda anti-serrilhada misturar na cor certa, e o fio some. */
+.lb-face:has(> .lb-page--cover),
+.lb-face:has(> .lb-page--endpaper) {
+  top: calc(-1 * var(--lb-cover-square));
+  right: calc(-1 * var(--lb-cover-square));
+  bottom: calc(-1 * var(--lb-cover-square));
+  left: 0;
+}
+
+.lb-face:has(> .lb-page--cover) {
+  background: var(--lb-cover);
+}
+
+/* guarda: a face mostra a PLACA (borda), com a folha colada recuada no centro */
+.lb-face:has(> .lb-page--endpaper) {
+  background: var(--lb-board);
+}
+
+
+/* translateZ separa as duas faces (a comutacao de visibility em 90° ja garante
+   a separacao; o translateZ e so reforco). Mantido baixo (0.3px) pra encurtar o
+   vao sub-pixel entre a face e a placa da capa atras dela — era ali que o fundo
+   claro vazava como um fio. (Armadilha 2 da v1.) */
+.lb-face--front {
+  transform: translateZ(0.3px);
+  border-radius: 4px var(--lb-radius) var(--lb-radius) 4px;
+}
+
+.lb-face--back {
+  transform: rotateY(180deg) translateZ(0.3px);
+  border-radius: var(--lb-radius) 4px 4px var(--lb-radius);
+}
+
+/* sombra que varre a folha conforme ela gira */
+.lb-face__shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lb-face__shade--front {
+  background: linear-gradient(90deg, rgba(58, 43, 76, 0.55) 0%, rgba(58, 43, 76, 0) 62%);
+}
+
+.lb-face__shade--back {
+  background: linear-gradient(270deg, rgba(58, 43, 76, 0.5) 0%, rgba(58, 43, 76, 0) 62%);
+}
+
+/* ------------------------------------------------------------------ paginas */
+
+.lb-page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 52px 54px 58px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 100% at 100% 0%, #fffdf9 0%, rgba(255, 253, 249, 0) 60%),
+    linear-gradient(180deg, var(--lb-paper) 0%, var(--lb-paper-2) 100%);
+}
+
+.lb-page--right {
+  padding-left: 62px;
+  border-radius: 4px var(--lb-radius) var(--lb-radius) 4px;
+}
+
+.lb-page--left {
+  padding-right: 62px;
+  border-radius: var(--lb-radius) 4px 4px var(--lb-radius);
+}
+
+/* sombra da lombada dentro da pagina */
+.lb-page__gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  pointer-events: none;
+}
+
+.lb-page--right .lb-page__gutter {
+  left: 0;
+  background: linear-gradient(90deg, rgba(58, 43, 76, 0.16), rgba(58, 43, 76, 0));
+}
+
+.lb-page--left .lb-page__gutter {
+  right: 0;
+  background: linear-gradient(270deg, rgba(58, 43, 76, 0.16), rgba(58, 43, 76, 0));
+}
+
+.lb-page__sheet {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.lb-page__body {
+  height: 100%;
+}
+
+.lb-page__num {
+  position: absolute;
+  bottom: 26px;
+  z-index: 2;
+  color: var(--lb-ink-faint);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+}
+
+.lb-page--right .lb-page__num {
+  right: 46px;
+}
+
+.lb-page--left .lb-page__num {
+  left: 46px;
+}
+
+/* tons de pagina */
+/* A capa: UM elemento so. Este background e a capa inteira — troque por gradiente
+   ou imagem a vontade. Opaca, pra cobrir as folhas atras pela profundidade. */
+.lb-page--cover {
+  color: #fff;
+  background: var(--lb-cover);
+}
+
+/* Sem sombra de lombada na CAPA em si: sobre a capa fechada (um retangulo liso)
+   aquele gradiente virava uma faixa que o olho lia como linha divisoria. A
+   lombada do livro ABERTO e feita a parte pelo .lb-well__spine; a capa fechada
+   fica com o gradiente limpo. */
+
+.lb-page--cover .lb-page__num {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Folha de enchimento (miolo impar): papel liso rente, sem moldura de placa. */
+.lb-page--blank {
+  background:
+    radial-gradient(120% 100% at 0% 0%, #fffdf9 0%, rgba(255, 253, 249, 0) 55%),
+    linear-gradient(180deg, var(--lb-paper-2) 0%, var(--lb-paper-edge) 100%);
+}
+
+/* Guarda (lado de dentro da casca): placa lisa, cor solida — sem folha creme
+   colada. A face ja pinta o material da placa (--lb-board); a guarda so fica
+   transparente por cima, deixando a placa preencher o lado inteiro. Mantem so a
+   sombra sutil da lombada (via .lb-page__gutter) para nao ficar chapada. */
+.lb-page--endpaper {
+  background: transparent;
+}
+
+.lb-page--accent {
+  background: linear-gradient(170deg, #f6f1ff 0%, #ece2ff 100%);
+}
+
+.lb-page--chapter {
+  background:
+    radial-gradient(80% 60% at 10% 90%, rgba(169, 139, 240, 0.24), rgba(169, 139, 240, 0) 62%),
+    linear-gradient(180deg, var(--lb-paper) 0%, #f2ebfb 100%);
+}
+
+/* ------------------------------------------------------------ canto virando */
+
+.lb-corner {
+  position: absolute;
+  bottom: 0;
+  z-index: 4;
+  width: 132px;
+  height: 132px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.lb-corner:active {
+  cursor: grabbing;
+}
+
+.lb-corner--next {
+  right: 0;
+}
+
+.lb-corner--prev {
+  left: 0;
+}
+
+.lb-corner > span {
+  position: absolute;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  transition: width 300ms cubic-bezier(0.33, 1, 0.68, 1), height 300ms cubic-bezier(0.33, 1, 0.68, 1),
+    opacity 300ms ease;
+  pointer-events: none;
+}
+
+.lb-corner--next > span {
+  right: 0;
+}
+
+.lb-corner--prev > span {
+  left: 0;
+}
+
+.lb-corner:hover > span,
+.lb-corner:active > span {
+  width: 132px;
+  height: 132px;
+}
+
+/* verso do papel levantado */
+.lb-curl__paper {
+  background: linear-gradient(315deg, #ffffff 0%, #ece3ff 40%, #c4affa 100%);
+  box-shadow: -8px -8px 22px rgba(58, 43, 76, 0.26);
+}
+
+.lb-corner--next .lb-curl__paper {
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  border-bottom-right-radius: var(--lb-radius);
+}
+
+.lb-corner--prev .lb-curl__paper {
+  background: linear-gradient(45deg, #ffffff 0%, #ece3ff 40%, #c4affa 100%);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  border-bottom-left-radius: var(--lb-radius);
+}
+
+/* vinco */
+.lb-curl__crease {
+  opacity: 0.9;
+}
+
+.lb-corner--next .lb-curl__crease {
+  background: linear-gradient(
+    45deg,
+    rgba(183, 155, 242, 0) 0 calc(100% - 3px),
+    var(--lb-crease) calc(100% - 3px) 100%
+  );
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.lb-corner--prev .lb-curl__crease {
+  background: linear-gradient(
+    -45deg,
+    rgba(183, 155, 242, 0) 0 calc(100% - 3px),
+    var(--lb-crease) calc(100% - 3px) 100%
+  );
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+/* sombra projetada na pagina de baixo */
+.lb-curl__shadow {
+  background: radial-gradient(
+    120% 120% at 100% 100%,
+    rgba(58, 43, 76, 0.34) 0%,
+    rgba(58, 43, 76, 0) 70%
+  );
+  filter: blur(2px);
+}
+
+.lb-corner--prev .lb-curl__shadow {
+  background: radial-gradient(
+    120% 120% at 0% 100%,
+    rgba(58, 43, 76, 0.34) 0%,
+    rgba(58, 43, 76, 0) 70%
+  );
+}
+
+/* ----------------------------------------------------- faixas de arraste */
+
+.lb-grip {
+  position: absolute;
+  top: 5%;
+  bottom: 19%;
+  z-index: 50;
+  width: 3.6%;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.lb-grip:active {
+  cursor: grabbing;
+}
+
+.lb-grip--prev {
+  left: 0;
+}
+
+.lb-grip--next {
+  right: 0;
+}
+
+/* ------------------------------------------ capa: alca de face inteira + dica */
+
+/* A capa dura nao tem alca de canto; a face inteira e area de pegar. Como capa
+   nao tem conteudo clicavel, cobrir tudo (topo a base) nao briga com nada. */
+.lb-covergrab {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.lb-covergrab:active {
+  cursor: grabbing;
+}
+
+/* dica de hover: maozinha com rastro empilhado, no lado onde se pega */
+.lb-covergrab__hint {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 220ms ease;
+  pointer-events: none;
+}
+
+.lb-covergrab--next .lb-covergrab__hint {
+  right: 15%;
+}
+
+.lb-covergrab--prev .lb-covergrab__hint {
+  left: 15%;
+}
+
+.lb-covergrab:hover .lb-covergrab__hint {
+  opacity: 1;
+}
+
+/* 4 copias sobrepostas. Elas correm a mesma animacao com atraso escalonado, e
+   cada uma tem um teto de opacidade menor — a da frente lidera, as 3 de tras
+   viram ecos que desvanecem, formando o rastro do movimento. */
+.lb-covergrab__hand {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+}
+
+.lb-covergrab__hand:nth-child(1) {
+  --lb-op: 1;
+  animation-delay: 0s;
+}
+
+.lb-covergrab__hand:nth-child(2) {
+  --lb-op: 0.5;
+  animation-delay: 0.09s;
+}
+
+.lb-covergrab__hand:nth-child(3) {
+  --lb-op: 0.3;
+  animation-delay: 0.18s;
+}
+
+.lb-covergrab__hand:nth-child(4) {
+  --lb-op: 0.16;
+  animation-delay: 0.27s;
+}
+
+.lb-covergrab:hover .lb-covergrab__hand {
+  animation-duration: 1.6s;
+  animation-timing-function: cubic-bezier(0.33, 0.8, 0.4, 1);
+  animation-iteration-count: infinite;
+}
+
+.lb-covergrab--next:hover .lb-covergrab__hand {
+  animation-name: lb-hand-trail-next;
+}
+
+.lb-covergrab--prev:hover .lb-covergrab__hand {
+  animation-name: lb-hand-trail-prev;
+}
+
+/* aparece a direita, desliza levemente pra esquerda, desvanece — em loop */
+@keyframes lb-hand-trail-next {
+  0% {
+    transform: translateX(7px);
+    opacity: 0;
+  }
+  22% {
+    opacity: var(--lb-op, 1);
+  }
+  64% {
+    transform: translateX(-11px);
+    opacity: var(--lb-op, 1);
+  }
+  88%,
+  100% {
+    transform: translateX(-11px);
+    opacity: 0;
+  }
+}
+
+@keyframes lb-hand-trail-prev {
+  0% {
+    transform: translateX(-7px);
+    opacity: 0;
+  }
+  22% {
+    opacity: var(--lb-op, 1);
+  }
+  64% {
+    transform: translateX(11px);
+    opacity: var(--lb-op, 1);
+  }
+  88%,
+  100% {
+    transform: translateX(11px);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------- setas */
+
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 60;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(122, 85, 209, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--lb-accent);
+  cursor: pointer;
+  place-items: center;
+  transform: translateY(-50%);
+  transition: transform 200ms ease, background 200ms ease, opacity 200ms ease;
+  backdrop-filter: blur(6px);
+}
+
+.lb-nav:hover:not(:disabled) {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.lb-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.lb-nav--prev {
+  left: 14px;
+}
+
+.lb-nav--next {
+  right: 14px;
+}
+
+/* -------------------------------------------------------- sumario escondido */
+
+.lb-toc {
+  position: relative;
+  z-index: 70;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.lb-toc__ribbon {
+  position: relative;
+  z-index: 2;
+  height: 168px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 0 14px 14px 0;
+  background: linear-gradient(180deg, var(--lb-accent-2), var(--lb-accent));
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  box-shadow: 3px 4px 14px rgba(122, 85, 209, 0.35);
+}
+
+.lb-toc__panel {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 300px;
+  padding: 22px 20px;
+  border: 1px solid rgba(122, 85, 209, 0.16);
+  border-radius: 0 20px 20px 0;
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: 18px 22px 48px -20px rgba(58, 43, 76, 0.45);
+  opacity: 0;
+  transform: translate(-14px, -50%);
+  transition: opacity 260ms ease, transform 320ms cubic-bezier(0.33, 1, 0.68, 1);
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.lb-toc.is-open .lb-toc__panel {
+  opacity: 1;
+  transform: translate(0, -50%);
+  pointer-events: auto;
+}
+
+.lb-toc__eyebrow {
+  margin: 0 0 12px;
+  color: var(--lb-ink-faint);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.lb-toc__panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lb-toc__panel li + li {
+  margin-top: 2px;
+}
+
+.lb-toc__panel button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.lb-toc__panel button:hover {
+  background: var(--lb-tint);
+}
+
+.lb-toc__panel button.is-current {
+  background: var(--lb-tint);
+  box-shadow: inset 3px 0 0 var(--lb-accent);
+}
+
+.lb-toc__num {
+  color: var(--lb-accent);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-toc__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lb-toc__text strong {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.lb-toc__text em {
+  overflow: hidden;
+  color: var(--lb-ink-soft);
+  font-size: 11.5px;
+  font-style: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lb-toc__page {
+  color: var(--lb-ink-faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------- fitas de capitulo */
+
+.lb-tabs {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+}
+
+.lb-tabs__tab {
+  position: absolute;
+  right: 0;
+  width: 30px;
+  max-height: 124px;
+  padding: 12px 8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px 0 0 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--lb-ink-soft);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  transition: width 220ms ease, background 220ms ease, color 220ms ease;
+}
+
+.lb-tabs__tab:hover {
+  width: 36px;
+  background: #fff;
+  color: var(--lb-accent);
+}
+
+.lb-tabs__tab.is-current {
+  background: linear-gradient(180deg, var(--lb-accent-2), var(--lb-accent));
+  color: #fff;
+}
+
+/* ----------------------------------------------------------------- rodape */
+
+.lb-footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 28px 16px;
+  color: var(--lb-ink-faint);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+}
+
+.lb-footer__pages {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-footer__pages-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lb-ink-faint);
+}
+
+.lb-footer__pages-cur {
+  color: var(--lb-accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.lb-footer__pages-total {
+  color: var(--lb-ink-faint);
+}
+
+/* --------------------------------------------------------------- responsivo */
+
+@media (max-width: 900px) {
+  .lb-progress {
+    display: none;
+  }
+
+  .lb-tabs {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-corner > span {
+    transition: none;
+  }
+
+  .lb-covergrab__hand {
+    animation: none;
+  }
+
+  /* sem movimento: mostra so a mao da frente, parada */
+  .lb-covergrab:hover .lb-covergrab__hand:nth-child(1) {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,317 @@
+/* =========================================================================
+   Estilos de conteudo — opcional.
+   Importe se quiser um ponto de partida tipografico dentro das paginas;
+   ignore se o seu projeto ja tem design system.
+   ========================================================================= */
+
+.lb-prose {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+  color: var(--lb-ink);
+  font-size: 14.5px;
+  line-height: 1.62;
+}
+
+.lb-kicker {
+  margin: 0;
+  color: var(--lb-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.lb-h1 {
+  margin: 0;
+  font-family: var(--lb-display);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.lb-h2 {
+  margin: 0;
+  font-family: var(--lb-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.lb-h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lb-prose p {
+  margin: 0;
+}
+
+.lb-lead {
+  color: var(--lb-ink-soft);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.lb-prose a {
+  color: var(--lb-accent);
+  text-decoration-color: var(--lb-accent-3);
+  text-underline-offset: 3px;
+}
+
+.lb-rule {
+  width: 54px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--lb-accent), var(--lb-accent-3));
+}
+
+/* callout */
+.lb-callout {
+  display: flex;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--lb-tint);
+  box-shadow: inset 3px 0 0 var(--lb-accent);
+}
+
+.lb-callout__icon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--lb-accent);
+  font-size: 13px;
+  font-weight: 700;
+  place-items: center;
+}
+
+.lb-callout p {
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* espaco reservado para imagem */
+.lb-figure {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border: 1px dashed rgba(122, 85, 209, 0.35);
+  border-radius: 16px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(169, 139, 240, 0.08) 0 10px,
+      rgba(169, 139, 240, 0) 10px 20px
+    ),
+    #fbf8ff;
+  color: var(--lb-ink-faint);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  place-items: center;
+}
+
+.lb-figure--tall {
+  flex: 1 1 auto;
+  min-height: 180px;
+}
+
+.lb-figure--wide {
+  height: 150px;
+}
+
+.lb-figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* tabela */
+.lb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.lb-table th {
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--lb-accent-3);
+  color: var(--lb-ink-soft);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.lb-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--lb-line);
+  vertical-align: top;
+}
+
+.lb-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* cards */
+.lb-cards {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.lb-card {
+  padding: 14px 16px;
+  border: 1px solid var(--lb-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.lb-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13.5px;
+}
+
+.lb-card span {
+  color: var(--lb-ink-soft);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* passos numerados */
+.lb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lb-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.lb-step__n {
+  flex: 0 0 auto;
+  width: 46px;
+  font-family: var(--lb-display);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 0.9;
+  color: var(--lb-accent-3);
+}
+
+.lb-step__t {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lb-step__d {
+  color: var(--lb-ink-soft);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* pipeline */
+.lb-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lb-pipeline__item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(239, 232, 255, 0.9), rgba(255, 255, 255, 0.5));
+}
+
+.lb-pipeline__dot {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--lb-accent-2), var(--lb-accent));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  place-items: center;
+}
+
+.lb-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--lb-tint);
+  color: var(--lb-accent);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.lb-pill--ok {
+  background: #e6f6ec;
+  color: #2f7d4f;
+}
+
+/* capa */
+.lb-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  color: #fff;
+}
+
+.lb-cover .lb-h1 {
+  font-size: 46px;
+}
+
+.lb-cover .lb-kicker {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.lb-cover .lb-lead {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.lb-cover .lb-rule {
+  background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0.2));
+}
+
+/* abertura de capitulo */
+.lb-chapter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+}
+
+.lb-chapter__n {
+  font-family: var(--lb-display);
+  font-size: 92px;
+  font-weight: 600;
+  line-height: 0.85;
+  color: var(--lb-accent-3);
+}
