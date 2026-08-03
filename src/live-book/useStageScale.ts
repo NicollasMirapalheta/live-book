@@ -23,13 +23,30 @@ export function useStageScale(ref: RefObject<HTMLElement>, margin = 104) {
     const measure = () => {
       const { width, height } = el.getBoundingClientRect();
       if (!width || !height) return;
+      // setScale com o MESMO numero e no-op no React — so re-renderiza quando a
+      // escala realmente muda.
       setScale(fit(width - margin, height - margin));
     };
 
+    // Coalesce as rajadas do ResizeObserver num unico measure por frame: arrastar
+    // a borda da janela disparava dezenas de setScale/s, cada um re-renderizando
+    // todas as folhas.
+    let raf = 0;
+    const schedule = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        measure();
+      });
+    };
+
     measure();
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(schedule);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
   }, [ref, margin]);
 
   return scale;

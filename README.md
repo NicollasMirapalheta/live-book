@@ -37,6 +37,7 @@ e uma fita na borda direita. `title` aparece como subtítulo no sumário.
 | `title` / `subtitle` | cabeçalho |
 | `initialLeaf` | folha inicial (0 = fechado) |
 | `sound` | liga o ruído de papel |
+| `windowRadius` | folhas montadas de cada lado do spread (virtualização; padrão 4) |
 | `onLeafChange(leaf)` | callback de navegação |
 
 | `Page` | |
@@ -117,6 +118,23 @@ band-pass que varre de 720 Hz a 2,8 kHz, com envelope curto. Nenhum arquivo.
    profundidade. As alças de arraste ficam **fora** do palco, num wrapper que
    também carrega a `perspective`; dentro dele as folhas passariam por cima.
 
+## Desempenho
+
+Pensado para rodar liso em máquinas fracas (GPU integrada), inclusive em volumes
+longos.
+
+- **Virtualização.** Só as folhas dentro de uma janela (`windowRadius`, padrão 4)
+  em volta do spread — mais capa e contracapa — entram no DOM. Os `MotionValue`s
+  de ângulo vivem no componente pai, então uma folha remonta já no ângulo certo
+  ao reentrar na janela, sem pulo. Custo de memória/camadas **constante**: um
+  livro de 500 páginas custa o mesmo que um de 10. A mesma janela limita a
+  cascata — pular muitos capítulos anima só as folhas perto do destino.
+- **`will-change` dinâmico.** Promovido a camada de GPU só enquanto a folha se
+  move (virada ou arraste), nunca de forma permanente.
+- **Faces sob demanda.** O conteúdo de cada página é construído ao entrar na
+  janela e cacheado com referência estável, então virar a página não reconcilia
+  o DOM das outras páginas.
+
 ## Dependências
 
 | | |
@@ -133,7 +151,6 @@ no DOM das páginas.
 
 - Modo retrato: uma página só em telas estreitas
 - Toque e inércia em tablet
-- Virtualização das folhas para volumes longos
 - Rotas por capítulo
 - Ordem de foco acompanhando o spread (acessibilidade)
 - Scroll interno da página sem disputar com o scroll de virada

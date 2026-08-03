@@ -1,4 +1,4 @@
-import { useState, type PointerEvent, type ReactNode } from "react";
+import { memo, useState, type PointerEvent, type ReactNode } from "react";
 import { motion, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { LIFT_Z } from "./constants";
 
@@ -16,6 +16,9 @@ export interface LeafProps {
   coverNext?: boolean;
   /** Face do verso e uma capa dura: toda a face vira alca de pegar (voltar). */
   coverPrev?: boolean;
+  /** Esta folha e a que esta sendo arrastada agora (o arraste move o angulo por
+   * .set(), sem disparar evento de animacao — por isso precisa vir de fora). */
+  active?: boolean;
   onGrab: (event: PointerEvent, dir: 1 | -1) => void;
   onMove: (event: PointerEvent) => void;
   onRelease: (event: PointerEvent) => void;
@@ -28,7 +31,7 @@ export interface LeafProps {
  * do MotionValue no mesmo frame. Derivar do angulo *alvo* daria seno zero no
  * primeiro frame e a folha nunca levantaria nem sombrearia. (Armadilha 1.)
  */
-export function Leaf({
+export const Leaf = memo(function Leaf({
   index,
   leaves,
   angle,
@@ -38,6 +41,7 @@ export function Leaf({
   curlPrev,
   coverNext,
   coverPrev,
+  active,
   onGrab,
   onMove,
   onRelease,
@@ -55,9 +59,17 @@ export function Leaf({
     if (next !== turned) setTurned(next);
   });
 
+  // will-change so enquanto a folha realmente se move: liga no inicio da
+  // animacao (animate()) e desliga ao completar; o arraste vem por `active`.
+  const [animating, setAnimating] = useState(false);
+  useMotionValueEvent(angle, "animationStart", () => setAnimating(true));
+  useMotionValueEvent(angle, "animationComplete", () => setAnimating(false));
+  useMotionValueEvent(angle, "animationCancel", () => setAnimating(false));
+  const isLive = animating || !!active;
+
   return (
     <motion.div
-      className="lb-leaf"
+      className={`lb-leaf${isLive ? " is-live" : ""}`}
       style={{ rotateY: angle, z: lift, zIndex: turned ? leaves + index + 1 : leaves - index }}
     >
       <motion.div className="lb-face lb-face--front" style={{ visibility: frontVisibility }}>
@@ -83,7 +95,7 @@ export function Leaf({
       </motion.div>
     </motion.div>
   );
-}
+});
 
 /**
  * O canto nao e a folha inclinada: sao dois triangulos recortados por clip-path

@@ -14,6 +14,19 @@ export const EASE: [number, number, number, number] = [0.65, 0, 0.35, 1];
 /** Fracao minima do arraste para a folha virar em vez de voltar. */
 export const DRAG_THRESHOLD = 0.28;
 
+/**
+ * Virtualizacao: quantas folhas manter montadas de CADA lado do spread atual
+ * (alem da capa e contracapa, sempre montadas). So estas viram DOM/camadas de
+ * GPU — o resto do livro nao existe no DOM. E o que mantem o custo constante
+ * num livro de 300+ paginas: sem isto, 150 folhas × (folha + 2 faces) viravam
+ * centenas de camadas de composicao e estouravam a VRAM em maquinas fracas.
+ *
+ * Tambem limita a cascata: pular muitos capitulos anima so as folhas nesta
+ * janela (perto do destino) e assenta o resto na hora — em vez de animar as 125
+ * folhas entre origem e destino. O raio e a profundidade visivel da cascata.
+ */
+export const WINDOW_RADIUS = 4;
+
 /** Intervalo minimo entre viradas disparadas pelo scroll. */
 export const WHEEL_THROTTLE_MS = 750;
 

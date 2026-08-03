@@ -27,6 +27,7 @@ import {
   STAGE_W,
   STAGGER_S,
   WHEEL_THROTTLE_MS,
+  WINDOW_RADIUS,
 } from "./constants";
 import type { CSSProperties } from "react";
 import "./live-book.css";
@@ -45,6 +46,12 @@ export interface LiveBookProps {
   initialLeaf?: number;
   /** Liga o ruido de papel sintetizado a cada virada. */
   sound?: boolean;
+  /**
+   * Quantas folhas manter montadas de cada lado do spread atual (virtualizacao).
+   * Padrao: WINDOW_RADIUS. Menor = menos memoria/camadas (bom p/ maquina fraca),
+   * cascata mais curta em saltos grandes. Maior = cascata mais funda, mais DOM.
+   */
+  windowRadius?: number;
   className?: string;
   onLeafChange?: (leaf: number) => void;
 }
@@ -64,6 +71,49 @@ type Face =
 const isCoverArt = (f?: Face): f is { kind: "cover" | "back-cover"; node: ReactNode } =>
   f?.kind === "cover" || f?.kind === "back-cover";
 
+/**
+ * Renderiza UMA face (frente ou verso de uma folha). Funcao pura de modulo — nao
+ * fecha sobre estado do componente — para poder ser memoizada por `faces` e nao
+ * recriar o DOM das paginas a cada virada.
+ */
+function surfaceOf(face: Face | undefined, side: "left" | "right") {
+  const cls = (extra: string) => `lb-page lb-page--${side} ${extra}`;
+
+  // guardas (lado de dentro da casca) e enchimento: papel liso, sem numero.
+  if (!face || face.kind === "endpaper" || face.kind === "blank") {
+    const variant = face?.kind === "endpaper" ? "lb-page--endpaper" : "lb-page--blank";
+    return (
+      <div className={cls(variant)}>
+        <div className="lb-page__sheet">
+          <div className="lb-page__body" />
+        </div>
+        <span className="lb-page__gutter" />
+      </div>
+    );
+  }
+
+  // capa / contracapa: a casca. Recebe a arte que veio pelas props.
+  if (isCoverArt(face)) {
+    return (
+      <div className={cls("lb-page--cover")}>
+        <div className="lb-page__sheet">{face.node ?? <div className="lb-page__body" />}</div>
+        <span className="lb-page__gutter" />
+      </div>
+    );
+  }
+
+  // pagina do miolo.
+  const props = face.el.props;
+  const tone = props.tone ?? "paper";
+  return (
+    <div className={cls(`lb-page--${tone}`)}>
+      <div className="lb-page__sheet">{face.el}</div>
+      {!props.hideNumber ? <span className="lb-page__num">{face.number}</span> : null}
+      <span className="lb-page__gutter" />
+    </div>
+  );
+}
+
 interface DragState {
   index: number;
   dir: 1 | -1;
@@ -80,6 +130,7 @@ export function LiveBook({
   subtitle,
   initialLeaf = 0,
   sound = true,
+  windowRadius = WINDOW_RADIUS,
   className = "",
   onLeafChange,
 }: LiveBookProps) {
@@ -195,6 +246,18 @@ export function LiveBook({
     return entries;
   }, [faces]);
 
+  // Uma folha esta montada (existe no DOM) se for a capa, a contracapa, ou cair
+  // na janela em volta do spread atual. Base da virtualizacao e do cap da cascata.
+  // O raio tem piso 1: o spread mostra a folha `leaf-1` (verso, a esquerda) e
+  // `leaf` (frente, a direita), entao ambas precisam estar montadas — com raio 0
+  // a pagina da esquerda sumiria.
+  const win = Math.max(1, Math.floor(windowRadius));
+  const inWindow = useCallback(
+    (i: number, around: number) =>
+      i === 0 || i === leaves - 1 || (i >= around - win && i <= around + win),
+    [leaves, win],
+  );
+
   const goTo = useCallback(
     (next: number, duration = FLIP_S) => {
       const from = leafRef.current;
@@ -202,24 +265,31 @@ export function LiveBook({
       if (target === from) return;
 
       const forward = target > from;
-      const moving: number[] = [];
-      if (forward) for (let i = from; i < target; i += 1) moving.push(i);
-      else for (let i = from - 1; i >= target; i -= 1) moving.push(i);
+      const settle = forward ? -180 : 0;
+      const seq: number[] = [];
+      if (forward) for (let i = from; i < target; i += 1) seq.push(i);
+      else for (let i = from - 1; i >= target; i -= 1) seq.push(i);
 
-      moving.forEach((index, order) => {
-        animate(angles[index], forward ? -180 : 0, {
-          duration,
-          ease: EASE,
-          delay: order * STAGGER_S,
-        });
+      // So anima as folhas que estarao montadas no destino (perto do spread
+      // final); as de fora da janela assentam na hora — sao invisiveis (nao
+      // estao no DOM) e nao ha o que animar. E o que impede um salto de 250
+      // paginas de tentar animar 125 folhas de uma vez.
+      let order = 0;
+      seq.forEach((index) => {
+        if (!inWindow(index, target)) {
+          angles[index].set(settle); // fora da janela: assenta na hora, sem som
+          return;
+        }
+        animate(angles[index], settle, { duration, ease: EASE, delay: order * STAGGER_S });
         if (order < 4) play(order * STAGGER_S * 1000);
+        order += 1;
       });
 
       leafRef.current = target;
       setLeaf(target);
       onLeafChange?.(target);
     },
-    [angles, leaves, play, onLeafChange],
+    [angles, leaves, play, onLeafChange, inWindow],
   );
 
   /* ---------------------------------------------------------------- teclado */
@@ -265,6 +335,9 @@ export function LiveBook({
   /* ---------------------------------------------------------------- arraste */
   const drag = useRef<DragState | null>(null);
   const [dragging, setDragging] = useState(false);
+  // Indice da folha em arraste — dirige o will-change dela (o arraste move o
+  // angulo por .set(), que nao dispara evento de animacao na folha).
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
 
   const onGrab = useCallback(
     (e: ReactPointerEvent, dir: 1 | -1) => {
@@ -274,6 +347,7 @@ export function LiveBook({
       (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
       drag.current = { index, dir, startX: e.clientX, progress: 0, moved: false };
       setDragging(true);
+      setDragIndex(index);
     },
     [leaves],
   );
@@ -299,6 +373,7 @@ export function LiveBook({
       if (!d) return;
       drag.current = null;
       setDragging(false);
+      setDragIndex(null);
       (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
 
       if (!d.moved) {
@@ -315,44 +390,28 @@ export function LiveBook({
   );
 
   /* ------------------------------------------------------------- renderizar */
-  const surface = (faceIndex: number, side: "left" | "right") => {
-    const face = faces[faceIndex];
-    const cls = (extra: string) => `lb-page lb-page--${side} ${extra}`;
-
-    // guardas (lado de dentro da casca) e enchimento: papel liso, sem numero.
-    // A guarda vira moldura da placa; o enchimento e so papel rente.
-    if (!face || face.kind === "endpaper" || face.kind === "blank") {
-      const variant = face?.kind === "endpaper" ? "lb-page--endpaper" : "lb-page--blank";
-      return (
-        <div className={cls(variant)}>
-          <div className="lb-page__sheet">
-            <div className="lb-page__body" />
-          </div>
-          <span className="lb-page__gutter" />
-        </div>
-      );
+  // Faces por folha (frente/verso), construidas SOB DEMANDA e cacheadas. Duas
+  // metas ao mesmo tempo:
+  //  - referencia estavel: uma vez construida, a mesma face volta em todo render
+  //    (enquanto `faces` nao muda), entao o React.memo da Leaf so re-renderiza as
+  //    folhas cujo estado mudou — mata o reconcile de todas as paginas a cada
+  //    virada (o antigo pico de ~130ms).
+  //  - custo de mount O(janela), nao O(livro): so as folhas que entram na janela
+  //    constroem sua face. Um livro de 500+ paginas nao materializa 1000 arvores
+  //    de elementos no mount — so a dezena visivel. O cache cresce conforme a
+  //    leitura avanca, nunca de uma vez.
+  const surfaceCache = useMemo(
+    () => new Map<number, { front: ReactNode; back: ReactNode }>(),
+    // recria (esvazia) o cache so quando o conteudo das faces muda
+    [faces],
+  );
+  const getSurface = (i: number) => {
+    let s = surfaceCache.get(i);
+    if (!s) {
+      s = { front: surfaceOf(faces[2 * i], "right"), back: surfaceOf(faces[2 * i + 1], "left") };
+      surfaceCache.set(i, s);
     }
-
-    // capa / contracapa: a casca. Recebe a arte que veio pelas props.
-    if (isCoverArt(face)) {
-      return (
-        <div className={cls("lb-page--cover")}>
-          <div className="lb-page__sheet">{face.node ?? <div className="lb-page__body" />}</div>
-          <span className="lb-page__gutter" />
-        </div>
-      );
-    }
-
-    // pagina do miolo.
-    const props = face.el.props;
-    const tone = props.tone ?? "paper";
-    return (
-      <div className={cls(`lb-page--${tone}`)}>
-        <div className="lb-page__sheet">{face.el}</div>
-        {!props.hideNumber ? <span className="lb-page__num">{face.number}</span> : null}
-        <span className="lb-page__gutter" />
-      </div>
-    );
+    return s;
   };
 
   const leftFace = leaf > 0 ? 2 * leaf - 1 : -1;
@@ -525,6 +584,11 @@ export function LiveBook({
               </div>
 
               {angles.map((angle, i) => {
+                // Virtualizacao: fora da janela, a folha nao entra no DOM. Como o
+                // MotionValue do angulo persiste (vive aqui, nao na Leaf), ao
+                // reentrar na janela a folha monta ja no angulo certo — sem pulo.
+                if (!inWindow(i, leaf)) return null;
+
                 // A capa e a contracapa sao placas rigidas: a folha INTEIRA e a
                 // alca, e ela nao enrola no canto (sem o triangulo claro de
                 // papel). O miolo e papel: enrola no canto. Detectar pela FOLHA
@@ -537,12 +601,13 @@ export function LiveBook({
                     index={i}
                     leaves={leaves}
                     angle={angle}
-                    front={surface(2 * i, "right")}
-                    back={surface(2 * i + 1, "left")}
+                    front={getSurface(i).front}
+                    back={getSurface(i).back}
                     curlNext={i === leaf && !coverLeaf}
                     curlPrev={i === leaf - 1 && !coverLeaf}
                     coverNext={i === leaf && coverLeaf}
                     coverPrev={i === leaf - 1 && coverLeaf}
+                    active={dragIndex === i}
                     onGrab={onGrab}
                     onMove={onMove}
                     onRelease={onRelease}
