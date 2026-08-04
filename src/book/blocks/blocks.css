@@ -100,3 +100,44 @@
 .bk-spacer--lg { height: 32px; }
 /* fill: come o espaco restante da pagina (coluna flex) e empurra o resto abaixo */
 .bk-spacer--fill { flex: 1 1 auto; min-height: 8px; }
+
+/* --------------------------------------------------------------- midia */
+
+.bk-image {
+  margin: 0 0 1em;
+}
+.bk-image__frame {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--lb-radius);
+  background-color: var(--lb-paper-2);
+  background-size: cover;
+  background-position: center;
+}
+.bk-image__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.bk-image__img--cover { object-fit: cover; }
+.bk-image__img--contain { object-fit: contain; }
+.bk-image__caption {
+  margin-top: 6px;
+  color: var(--lb-ink-faint);
+  font-size: 12px;
+}
+
+.bk-gallery {
+  display: grid;
+  grid-template-columns: repeat(var(--bk-cols, 2), 1fr);
+  gap: 8px;
+  margin: 0 0 1em;
+}
+.bk-gallery__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: var(--lb-paper-2);
+}
