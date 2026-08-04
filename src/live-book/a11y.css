@@ -1,0 +1,22 @@
+/* Acessibilidade visual do leitor (LIB-07 AC2, LIB-08 AC5).
+ *
+ * Separado da geometria de live-book.css de proposito (AD-022): aqui vive SO o
+ * indicador de foco e o alvo de toque dos controles — nada da composicao 3D. */
+
+/* Foco visivel e com contraste em todo controle do leitor. */
+.lb-root :focus-visible {
+  outline: 3px solid var(--lb-accent, #3b5bdb);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Alvo de toque minimo 44x44 nos controles interativos (WCAG 2.5.5). `min-*` so
+ * cresce: nunca encolhe um controle que ja seja maior. */
+.lb-nav {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.lb-tabs__tab {
+  min-height: 44px;
+}

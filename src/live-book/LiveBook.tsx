@@ -33,6 +33,7 @@ import {
 } from "./constants";
 import type { CSSProperties } from "react";
 import "./live-book.css";
+import "./a11y.css"; // foco visivel e alvo de toque (LIB-07 AC2, LIB-08 AC5)
 
 export interface LiveBookProps {
   /** Paginas do miolo — uma sequencia de <LiveBook.Page>. Qualquer conteudo
