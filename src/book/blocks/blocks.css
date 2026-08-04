@@ -1,0 +1,55 @@
+/* =========================================================================
+   Blocos de conteudo (prefixo bk-).
+   Consomem SO as custom properties --lb-* ja definidas em .lb-root
+   (live-book.css). Nenhuma cor nova: trocar o tema troca os blocos junto.
+   ========================================================================= */
+
+/* --------------------------------------------------------------- texto */
+
+.bk-heading {
+  margin: 0 0 0.4em;
+  color: var(--lb-ink);
+  font-family: var(--lb-display);
+  font-weight: 600;
+  line-height: 1.12;
+}
+.bk-heading--1 { font-size: clamp(28px, 4vw, 40px); }
+.bk-heading--2 { font-size: clamp(22px, 3vw, 28px); }
+.bk-heading--3 { font-size: clamp(17px, 2.2vw, 20px); }
+
+.bk-text {
+  margin: 0 0 0.9em;
+  color: var(--lb-ink);
+  font-size: 15px;
+  line-height: 1.62;
+}
+.bk-text :where(a) { color: var(--lb-accent); }
+.bk-text :where(strong) { color: var(--lb-ink); }
+.bk-text :where(code) {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--lb-tint);
+  color: var(--lb-accent);
+  font-size: 0.88em;
+}
+
+.bk-quote {
+  margin: 0 0 1em;
+  padding: 4px 0 4px 16px;
+  border-left: 3px solid var(--lb-accent-3);
+  color: var(--lb-ink-soft);
+}
+.bk-quote__text {
+  margin: 0;
+  font-family: var(--lb-display);
+  font-size: 17px;
+  font-style: italic;
+  line-height: 1.45;
+}
+.bk-quote__cite {
+  display: block;
+  margin-top: 6px;
+  color: var(--lb-ink-faint);
+  font-size: 13px;
+  font-style: normal;
+}
