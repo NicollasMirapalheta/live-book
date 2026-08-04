@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { fireEvent, render } from "@testing-library/react";
+import App from "../../App";
 import { LiveBook } from "../../live-book";
 import { renderCover, renderPages } from "../renderPages";
 import { getSurface } from "../surfaces/registry";
@@ -80,5 +81,13 @@ describe("demo como documento — integracao", () => {
   it("a primeira pagina de miolo tem numero impresso 1", () => {
     const { printedNumbers } = renderDemo();
     expect(printedNumbers()[0]).toBe(1);
+  });
+
+  it("o App aplica o tema da surface como custom properties no root, sem vencer --lb-cover-square (DOC-08)", () => {
+    const { container } = render(<App />);
+    const root = container.querySelector(".lb-root") as HTMLElement;
+    expect(root.style.getPropertyValue("--lb-accent")).toBe("#7a55d1");
+    expect(root.style.getPropertyValue("--lb-paper")).toBe("#fdfbf6");
+    expect(root.style.getPropertyValue("--lb-cover-square")).toBe("26px");
   });
 });

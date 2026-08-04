@@ -199,11 +199,15 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 
 ## Handoff
 
-- **Feature**: bootstrap de documentação e specs (pré-implementação)
-- **Phase / Task**: Specify concluída para as fases 0 a 4; Design e Tasks concluídos para 0 e 1
-- **Completed**: domínio, arquitetura, 6 ADRs, design system, estratégia de testes, harness, roadmap; `.specs/features/` para fase-0, fase-1, fase-2a, fase-2b, fase-3, fase-4
-- **In-progress**: nada — nenhuma linha de código de produto foi escrita
-- **Next step**: executar a Fase 0 (`.specs/features/fase-0-fundacao/tasks.md`, T1 → T7). Requer reiniciar o Claude Code para a skill `tlc-spec-driven` ser registrada
-- **Blockers**: a skill `tlc-spec-driven` foi instalada nesta sessão e só carrega num start novo; o Execute Protocol das tasks exige que ela esteja ativa
-- **Uncommitted files**: `.claude/{skills,settings.json}`, `.agents/`, `.specs/`, `docs/`, `scripts/`, `CLAUDE.md`
-- **Branch**: main
+- **Feature**: Fases 0 e 1 implementadas (fundação de teste + documento/renderer)
+- **Phase / Task**: Fase 0 (T1–T7) e Fase 1 (T1–T14) concluídas. Specify pronta para 2A, 2B, 3, 4; Design e Tasks dessas fases ainda pendentes.
+- **Completed**:
+  - Fase 0: Vitest+jsdom, `src/book/units.ts` (branded types + conversões), caracterização do motor pela API pública (`src/live-book/__tests__/`), motor intocado.
+  - Fase 1: `schema.ts`, `migrate.ts`, `factory.ts`, registry de surfaces, 8 blocos de núcleo (`bk-*`), `RenderCtx`/`PageErrorBoundary`, `PageBody`, `renderPages`, surface `manuscript`, `demoDoc`, `App.tsx` ligado ao renderer. Props aditivas no motor (`style`, `apiRef`, guarda de `contentEditable`).
+  - 105 testes verdes; `typecheck` e `build` verdes. Verificação independente: PASS (autor ≠ verificador), com discriminação adversarial confirmando que os testes pegam regressões reais.
+- **In-progress**: nada.
+- **Next step**: Fase 2A (persistência, `.specs/features/fase-2a-persistencia/spec.md`) — precisa de Design + Tasks antes do Execute. Depende de Supabase (backend externo).
+- **Blockers**: a skill `tlc-spec-driven` não estava registrável nesta sessão; o contrato Execute (teste do critério de aceite, gate verde, commit atômico por task, verificação independente ao fim) foi seguido manualmente a partir do `SKILL.md`.
+- **Desvios registrados** (justificados no corpo dos commits): (1) `RenderCtx`/`BlockRenderProps`/`SurfaceDef` co-locados em `RenderCtx.ts` para evitar ciclo de import; registry reexporta. (2) Error boundary por **bloco** (não por página), porque a spec exige que o irmão sobreviva a uma falha. (3) Ordem de execução ajustada por dependência de tipo (T8→blocos→T4; T3 antes de T2).
+- **Uncommitted files**: nenhum — tudo commitado no branch.
+- **Branch**: `claude/implantacao-proximos-passos-6b0ac3` (worktree). A fundação (specs/docs/CLAUDE.md/scripts/skills) foi trazida para o branch no primeiro commit; ainda está **untracked em `main`**.
