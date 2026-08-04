@@ -7,6 +7,9 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { render, fireEvent } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { LiveBook, Page } from "../index";
 import { renderBook } from "./renderBook";
 
 /** Elementos que entram no tab order. Exclui `tabindex="-1"` de propósito. */
@@ -66,5 +69,46 @@ describe("a11y do leitor (LIB-07)", () => {
     // toda folha montada e ocluída é inert (sai do tab order / da a11y).
     expect(noSpread.length).toBe(2);
     expect(inert.length).toBe(leaves.length - 2);
+  });
+
+  it("ao virar, o foco não permanece numa folha desmontada (LIB-07 AC3)", () => {
+    const pages: ReactElement[] = [];
+    for (let i = 0; i < 30; i += 1) {
+      pages.push(
+        <Page key={i}>{i === 0 ? <button type="button">alvo</button> : `p${i}`}</Page>,
+      );
+    }
+    const { getByText } = render(
+      <LiveBook
+        title="foco"
+        sound={false}
+        windowRadius={1}
+        initialLeaf={1}
+        cover={<div>capa</div>}
+        backCover={<div>contracapa</div>}
+      >
+        {pages}
+      </LiveBook>,
+    );
+
+    const alvo = getByText("alvo");
+    alvo.focus();
+    expect(document.activeElement).toBe(alvo);
+
+    // salta para o fim: a folha da página 0 sai da janela e desmonta.
+    fireEvent.keyDown(document, { key: "End" });
+
+    expect(alvo.isConnected).toBe(false); // a folha desmontou
+    expect(document.activeElement).not.toBe(alvo); // foco não ficou nela
+    expect((document.activeElement as HTMLElement | null)?.isConnected).toBe(true); // foi reancorado
+  });
+
+  it("a ordem de leitura das páginas segue crescente no DOM (LIB-08 AC4)", () => {
+    // O leitor de tela lê na ordem do DOM; números impressos crescentes garantem
+    // esquerda(menor)-depois-direita(maior) em qualquer spread.
+    const { printedNumbers } = renderBook(12, {});
+    const nums = printedNumbers();
+    expect(nums.length).toBeGreaterThan(0);
+    expect(nums).toEqual([...nums].sort((a, b) => a - b));
   });
 });

@@ -365,6 +365,22 @@ export function LiveBook({
     return () => el.removeEventListener("wheel", onWheel);
   }, [goTo]);
 
+  /* -------------------------------------------------- a11y: foco na virada */
+  // Ancora de foco: o container do leitor (focavel por tabIndex=-1). E o ultimo
+  // elemento que teve foco DENTRO do livro, para saber se ele desmontou.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const lastFocusRef = useRef<HTMLElement | null>(null);
+  // LIB-07 AC3: ao virar, uma folha que tinha foco pode sair da janela de
+  // virtualizacao e desmontar; o foco se perderia numa folha desconectada.
+  // Se isso aconteceu, reancora no container (aditivo de a11y, AD-019).
+  useEffect(() => {
+    const last = lastFocusRef.current;
+    if (last && !last.isConnected) {
+      rootRef.current?.focus();
+      lastFocusRef.current = null;
+    }
+  }, [leaf]);
+
   /* ---------------------------------------------------------------- arraste */
   const drag = useRef<DragState | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -475,6 +491,13 @@ export function LiveBook({
 
   return (
     <div
+      ref={rootRef}
+      tabIndex={-1}
+      // Ancora de foco na virada (LIB-07 AC3): guarda o ultimo focavel de dentro
+      // do livro; o efeito acima reancora aqui se ele desmontar.
+      onFocusCapture={(e) => {
+        if (e.target !== rootRef.current) lastFocusRef.current = e.target as HTMLElement;
+      }}
       className={`lb-root ${className} ${dragging ? "is-dragging" : ""}`}
       data-open={leaf > 0}
       // A sobra da capa dura vem do mesmo numero que a escala usa (BOARD_SQUARE),
