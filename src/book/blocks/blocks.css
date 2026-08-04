@@ -4,6 +4,14 @@
    (live-book.css). Nenhuma cor nova: trocar o tema troca os blocos junto.
    ========================================================================= */
 
+/* A pagina de blocos e uma coluna flex, para o Spacer `fill` empurrar o conteudo
+   seguinte ate o rodape da folha. */
+.bk-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 /* --------------------------------------------------------------- texto */
 
 .bk-heading {
