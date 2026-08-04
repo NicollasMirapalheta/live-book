@@ -57,8 +57,8 @@ describe("AppRouter", () => {
     expect(screen.getByText(/carregando volume/i)).toBeInTheDocument();
   });
 
-  it("'/s/:token' resolve para o leitor público", () => {
+  it("'/s/:token' resolve para o leitor público (ReaderShell)", () => {
     renderAt("/s/tok-123");
-    expect(screen.getByTestId("route-share")).toBeInTheDocument();
+    expect(screen.getByText(/carregando volume/i)).toBeInTheDocument();
   });
 });
