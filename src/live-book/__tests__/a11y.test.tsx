@@ -51,4 +51,20 @@ describe("a11y do leitor (LIB-07)", () => {
       expect(tab.getAttribute("aria-label")).toBeTruthy();
     }
   });
+
+  it("folhas montadas fora do spread são inert; as do spread não (LIB-07 AC1/AC3, AD-027)", () => {
+    // Abrir num spread do miolo: folhas 4 e 5 são o spread; as demais montadas
+    // (dentro da janela de virtualização) ficam ocluídas atrás dele.
+    const { container } = renderBook(20, { initialLeaf: 5 });
+    const leaves = Array.from(container.querySelectorAll(".lb-leaf"));
+    expect(leaves.length).toBeGreaterThan(2); // a janela monta mais que o spread
+
+    const inert = leaves.filter((l) => l.hasAttribute("inert"));
+    const noSpread = leaves.filter((l) => !l.hasAttribute("inert"));
+
+    // Exatamente o spread (as duas folhas visíveis) fica fora do inert;
+    // toda folha montada e ocluída é inert (sai do tab order / da a11y).
+    expect(noSpread.length).toBe(2);
+    expect(inert.length).toBe(leaves.length - 2);
+  });
 });

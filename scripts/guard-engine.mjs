@@ -14,7 +14,6 @@
  */
 
 const BLOCKED = [
-  "src/live-book/leaf.tsx",
   "src/live-book/constants.ts",
 ];
 
@@ -25,6 +24,10 @@ const WARNED = [
   "src/live-book/page.tsx",
   "src/live-book/types.ts",
   "src/live-book/usepagesound.ts",
+  // Leaf.tsx saiu de BLOCKED para WARNED por AD-027: liberada UMA mudança aditiva
+  // (o atributo `inert` derivado das props existentes, para a a11y de teclado).
+  // Todo o resto do arquivo continua proibido.
+  "src/live-book/leaf.tsx",
 ];
 
 const WARN_MESSAGE = `Lembrete AD-022 — este arquivo é do motor de virada.
@@ -33,9 +36,11 @@ Permitido apenas o que já foi aprovado:
   • props aditivas: style, toolbar, wheelFlip, apiRef
   • guarda de contentEditable no handler de teclado
   • reenquadramento de retrato via stageOffset (AD-005)
+  • a11y aditiva autorizada (AD-019); em Leaf.tsx, SÓ o atributo inert (AD-027)
 
 Continua PROIBIDO alterar: Face, surfaceOf, faces, toc, inWindow, surfaceCache,
-angles e a geometria do CSS. Ver .specs/STATE.md e docs/adr/002.`;
+angles, a geometria do CSS, e toda a lógica de ângulo/canto/arraste de Leaf.tsx.
+Ver .specs/STATE.md e docs/adr/002.`;
 
 function readStdin() {
   return new Promise((resolve) => {

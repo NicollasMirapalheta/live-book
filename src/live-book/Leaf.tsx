@@ -1,4 +1,4 @@
-import { memo, useState, type PointerEvent, type ReactNode } from "react";
+import { memo, useCallback, useState, type PointerEvent, type ReactNode } from "react";
 import { motion, useMotionValueEvent, useTransform, type MotionValue } from "motion/react";
 import { LIFT_Z } from "./constants";
 
@@ -67,8 +67,28 @@ export const Leaf = memo(function Leaf({
   useMotionValueEvent(angle, "animationCancel", () => setAnimating(false));
   const isLive = animating || !!active;
 
+  // Folha fora do spread atual: montada (dentro da janela) mas ocluida atras do
+  // spread, com a face visivel ainda no tab order. `inert` a tira da a11y e do
+  // foco (LIB-07, AD-027). "E o spread?" ja esta nas props: curl*/cover* sao
+  // true exatamente quando index === leaf (Next) ou index === leaf-1 (Prev). A
+  // face virada de uma folha do spread ja sai sozinha por visibility:hidden.
+  //
+  // Aplicado pela propriedade DOM `inert` num ref callback: o tipo do motion.div
+  // nao aceita o atributo `inert`, e o callback so re-roda quando offSpread muda
+  // (mesma cadencia da virada), sem custo por frame.
+  const offSpread = !(curlNext || curlPrev || coverNext || coverPrev);
+  const applyInert = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+      if (offSpread) node.setAttribute("inert", "");
+      else node.removeAttribute("inert");
+    },
+    [offSpread],
+  );
+
   return (
     <motion.div
+      ref={applyInert}
       className={`lb-leaf${isLive ? " is-live" : ""}`}
       style={{ rotateY: angle, z: lift, zIndex: turned ? leaves + index + 1 : leaves - index }}
     >
