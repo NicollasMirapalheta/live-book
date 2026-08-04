@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { NotFoundRoute } from "./NotFoundRoute";
+import { ReaderRoute } from "./ReaderRoute";
 
 /**
  * Tabela de rotas do produto (LIB-01, `AD-020`). Renderiza só `<Routes>`; o
@@ -20,9 +21,9 @@ export function AppRouter() {
     <Routes>
       <Route path="/" element={<Placeholder name="shelf" />} />
       <Route path="/new" element={<Placeholder name="new" />} />
-      <Route path="/b/:id" element={<Placeholder name="reader" />} />
-      <Route path="/b/:id/p/:page" element={<Placeholder name="reader" />} />
-      <Route path="/b/:id/c/:slug" element={<Placeholder name="reader" />} />
+      <Route path="/b/:id" element={<ReaderRoute />} />
+      <Route path="/b/:id/p/:page" element={<ReaderRoute />} />
+      <Route path="/b/:id/c/:slug" element={<ReaderRoute />} />
       <Route path="/s/:token" element={<Placeholder name="share" />} />
       <Route path="*" element={<NotFoundRoute />} />
     </Routes>

@@ -13,6 +13,7 @@ import { renderCover, renderPages } from "../book/renderPages";
 import { getSurface } from "../book/surfaces/registry";
 import { themeToVars } from "../book/schema";
 import { loadForRender } from "../book/loadDoc";
+import { resolveChapterPage } from "../book/chapters";
 import type { BookDoc } from "../book/schema";
 import type { RenderCtx } from "../book/RenderCtx";
 import type { StorageAdapter } from "../data/StorageAdapter";
@@ -35,11 +36,12 @@ type LoadState =
   | { status: "not-found" }
   | { status: "ready"; doc: BookDoc };
 
-/** Rota conectada ao router: resolve params + adapter e delega ao `ReaderShell`. */
+/** Rota conectada ao router: resolve params + adapter e delega ao `ReaderShell`.
+ * Serve `/b/:id`, `/b/:id/p/:page` e `/b/:id/c/:slug`. */
 export function ReaderRoute() {
-  const { id, page } = useParams();
+  const { id, page, slug } = useParams();
   const adapter = useAdapter();
-  return <ReaderShell adapter={adapter} id={id ?? ""} page={page} />;
+  return <ReaderShell adapter={adapter} id={id ?? ""} page={page} slug={slug} />;
 }
 
 export interface ReaderShellProps {
@@ -47,9 +49,11 @@ export interface ReaderShellProps {
   id: string;
   /** Número impresso da URL (`/p/:n`), ainda como string. Ausente = abre na capa. */
   page?: string;
+  /** Slug de capítulo (`/c/:slug`): resolve e redireciona para a URL canônica de página. */
+  slug?: string;
 }
 
-export function ReaderShell({ adapter, id, page }: ReaderShellProps) {
+export function ReaderShell({ adapter, id, page, slug }: ReaderShellProps) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
@@ -96,7 +100,26 @@ export function ReaderShell({ adapter, id, page }: ReaderShellProps) {
     );
   }
 
+  // `/c/:slug`: já com o doc em mãos, resolve o capítulo e redireciona para a URL
+  // canônica de página (uma única URL por posição). Slug inexistente → 1ª página.
+  if (slug != null) {
+    return <ChapterRedirect id={id} doc={state.doc} slug={slug} />;
+  }
+
   return <ReaderView adapter={adapter} id={id} doc={state.doc} page={page} />;
+}
+
+function ChapterRedirect({ id, doc, slug }: { id: string; doc: BookDoc; slug: string }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const target = resolveChapterPage(doc, slug);
+    navigate(`/b/${id}/p/${target}`, { replace: true });
+  }, [id, doc, slug, navigate]);
+  return (
+    <main className="app-reader app-reader--loading" aria-busy="true">
+      <p>Abrindo capítulo…</p>
+    </main>
+  );
 }
 
 function ReaderView({
