@@ -179,7 +179,7 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Trade-off**: Algumas features ficam mais trabalhosas por não poderem alterar o motor. Exceção única e já aprovada: AD-005.
 - **Scope**: `src/live-book/`.
 - **Date**: 2026-08-03
-- **Status**: active
+- **Status**: active; exceções aditivas pontuais: AD-005 (`stageOffset` retrato), AD-027 (`inert` de a11y em `Leaf.tsx`).
 
 ### AD-023
 - **Decision**: A surface `album` sai da Fase 1 e passa para a Fase 3, junto do pipeline de mídia. A Fase 1 entrega apenas `manuscript`.
@@ -210,6 +210,14 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Reason**: O contrato exige round-trip sem perda ("getBook devolve o documento salvo, sem perda"). Sanitizar dentro do adapter faria um doc com `<script>` voltar diferente do salvo e quebraria a fidelidade. Sanitizar no carregamento-para-render satisfaz `AD-024`/DATA-09 sem sujar o adapter.
 - **Trade-off**: A obrigação de chamar `loadForRender` no caminho de carga vira responsabilidade do consumidor (rotas da 2B). Se a 2B esquecer, doc da rede chega ao render sem sanitizar — por isso `sanitizeDoc`/`loadForRender` já saem testados na 2A e a 2B tem essa chamada como critério de entrada.
 - **Scope**: `src/book/sanitize.ts`, `src/book/loadDoc.ts`; caminho de carga da Fase 2B.
+- **Date**: 2026-08-04
+- **Status**: active
+
+### AD-027
+- **Decision**: Abre uma exceção aditiva pontual ao `AD-022`: é permitido adicionar em `Leaf.tsx` o atributo `inert` às folhas montadas que **não** são o spread atual, para a correção de acessibilidade da Fase 2B (LIB-07). A condição "é folha do spread" é derivada das props já existentes (`curlNext || curlPrev || coverNext || coverPrev`); nenhuma outra mudança em `Leaf.tsx` é autorizada, e o restante do `AD-022` segue ativo.
+- **Reason**: O goal "leitor inteiramente navegável por teclado" exige que folhas ocluídas mas montadas saiam do tab order. A face virada já sai via `visibility:hidden`, mas a face visível-porém-ocluída das folhas adjacentes ao spread não — o Tab cai em conteúdo invisível. `inert` é o mecanismo correto, e a informação necessária já está nas props, então a mudança é aditiva e não toca geometria, ângulos, `faces`, `angles` nem `surfaceCache`.
+- **Trade-off**: Encosta no arquivo mais protegido do motor (afinado por performance). Mitigado: derivado de props que já mudam a cada virada (sem re-render novo, sem `MotionValue` novo), e a caracterização da Fase 0 (LIB-07 AC6) é a rede — qualquer regressão estrutural quebra teste.
+- **Scope**: `src/live-book/Leaf.tsx` (só o atributo `inert` derivado); LIB-07.
 - **Date**: 2026-08-04
 - **Status**: active
 
