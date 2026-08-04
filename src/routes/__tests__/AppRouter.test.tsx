@@ -37,9 +37,9 @@ describe("AppRouter", () => {
     expect(screen.getByText(/carregando a estante/i)).toBeInTheDocument();
   });
 
-  it("'/new' resolve para a criação de volume", () => {
+  it("'/new' resolve para a criação de volume (NewBookRoute)", () => {
     renderAt("/new");
-    expect(screen.getByTestId("route-new")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /novo volume/i })).toBeInTheDocument();
   });
 
   it("'/b/:id' resolve para o leitor (ReaderShell)", () => {
