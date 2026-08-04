@@ -14,6 +14,7 @@
     "shots": "node shot.mjs"
   },
   "dependencies": {
+    "dompurify": "^3.4.13",
     "motion": "^12.23.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -22,6 +23,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/dompurify": "^3.0.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
