@@ -682,8 +682,9 @@ export function LiveBook({
           </button>
         </div>
 
-        {/* fitas de capitulo na borda direita */}
-        <div className="lb-tabs" aria-hidden="true">
+        {/* fitas de capitulo na borda direita — atalhos de navegacao reais, entao
+            expostos a a11y (LIB-07 AC1): fora de aria-hidden e com rotulo. */}
+        <nav className="lb-tabs" aria-label="Capítulos">
           {toc.map((t, i) => (
             <button
               type="button"
@@ -692,11 +693,13 @@ export function LiveBook({
               style={{ top: `${8 + i * 132}px` }}
               onClick={() => goTo(t.leaf)}
               title={t.title ?? t.label}
+              aria-label={`Ir para ${t.title ?? t.label}`}
+              aria-current={current?.page === t.page ? "true" : undefined}
             >
               {t.label}
             </button>
           ))}
-        </div>
+        </nav>
       </div>
 
       <footer className="lb-footer">
