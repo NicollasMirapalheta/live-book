@@ -1,6 +1,14 @@
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Link, useParams } from "react-router-dom";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { LiveBook } from "../live-book";
+import type { LiveBookApi } from "../live-book/types";
 import { renderCover, renderPages } from "../book/renderPages";
 import { getSurface } from "../book/surfaces/registry";
 import { themeToVars } from "../book/schema";
@@ -10,7 +18,7 @@ import type { RenderCtx } from "../book/RenderCtx";
 import type { StorageAdapter } from "../data/StorageAdapter";
 import { StorageUnavailableError } from "../data/StorageAdapter";
 import { useAdapter } from "./AdapterContext";
-import { leafForPage } from "./readerUrl";
+import { leafForPage, pageForLeaf } from "./readerUrl";
 
 /**
  * Leitor de um volume (LIB-01). Carrega o documento pelo adapter, PASSA por
@@ -88,20 +96,24 @@ export function ReaderShell({ adapter, id, page }: ReaderShellProps) {
     );
   }
 
-  return <ReaderView adapter={adapter} doc={state.doc} page={page} />;
+  return <ReaderView adapter={adapter} id={id} doc={state.doc} page={page} />;
 }
 
 function ReaderView({
   adapter,
+  id,
   doc,
   page,
 }: {
   adapter: StorageAdapter;
+  id: string;
   doc: BookDoc;
   page?: string;
 }) {
   const surface = getSurface(doc.surface);
   const maxPage = doc.pages.length;
+  const navigate = useNavigate();
+  const apiRef = useRef<LiveBookApi>(null);
 
   const ctx: RenderCtx = useMemo(
     () => ({
@@ -119,7 +131,29 @@ function ReaderView({
   } as CSSProperties;
 
   // Página ausente (rota /b/:id) abre na capa (leaf 0); com :n, na folha da página.
+  // `useState` inicial no motor: só o primeiro valor conta (montagem).
   const initialLeaf = page == null ? 0 : leafForPage(Number(page), maxPage);
+
+  // Virada do motor → URL. SEMPRE `replace` (AD-020): sem isso, folhear dezenas de
+  // páginas enterra o botão voltar do navegador.
+  const onLeafChange = useCallback(
+    (leaf: number) => {
+      const n = pageForLeaf(leaf, maxPage);
+      navigate(`/b/${id}/p/${n}`, { replace: true });
+    },
+    [navigate, id, maxPage],
+  );
+
+  // URL → motor (back/forward do navegador muda `:n`). Guarda anti-laço: só chama
+  // `goTo` quando a folha-alvo difere da atual, senão URL→goTo→onLeafChange→URL
+  // realimenta. A ida-volta bijetiva de `readerUrl` nas folhas fecha o ciclo.
+  useEffect(() => {
+    if (page == null) return;
+    const target = leafForPage(Number(page), maxPage);
+    if (apiRef.current && apiRef.current.getLeaf() !== target) {
+      apiRef.current.goTo(target);
+    }
+  }, [page, maxPage]);
 
   return (
     <main className="app-reader">
@@ -130,6 +164,8 @@ function ReaderView({
         windowRadius={surface.defaultWindowRadius}
         style={style}
         initialLeaf={initialLeaf}
+        apiRef={apiRef}
+        onLeafChange={onLeafChange}
         cover={renderCover(doc.cover, ctx)}
         backCover={renderCover(doc.backCover, ctx)}
       >
