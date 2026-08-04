@@ -45,13 +45,13 @@ plano — recuperação do token de edição (`AD-017`) e histórico de revisõe
 | Adapter escolhido em runtime | env var; sem `VITE_SUPABASE_URL`, cai no local | permite desenvolver offline sem configurar backend | s |
 | Token de edição guardado | `localStorage` por id de volume | não há conta onde guardar | s |
 | Link de resgate | exibido uma única vez na criação, sem reenvio | não há e-mail nem conta para recuperá-lo | s |
-| Revisões retidas | últimas 20 por volume, podadas no próprio `save_book` | teto previsível de armazenamento na cota gratuita | **n** |
+| Revisões retidas | últimas 20 por volume, podadas no próprio `save_book` | teto previsível de armazenamento na cota gratuita | s (AD-025) |
 | Sanitização de HTML | no carregamento, antes do render | sanitizar no save deixaria dado sujo já gravado passar | s |
 | Volume sem dono | `owner_id` nulo e `visibility: "link"` | é o estado da v1 inteira | s |
 | Conflito de `rev` | trava o autosave e avisa; nunca sobrescreve | perder edição em silêncio é o pior resultado | s |
 
-**Open question:** o teto de 20 revisões é chute — precisa ser confrontado com o tamanho
-real de um documento de álbum antes da implementação.
+**Open question (resolvida):** o teto de 20 revisões foi confrontado com o tamanho real
+(~180 KB por álbum de 300 págs → ~3,6 MB de histórico por volume) e confirmado em `AD-025`.
 
 ---
 

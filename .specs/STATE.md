@@ -197,6 +197,22 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Date**: 2026-08-03
 - **Status**: active
 
+### AD-025
+- **Decision**: O teto de revisões restauráveis por volume é 20, definido em `src/config/limits.ts` (`REVISION_CAP`) e espelhado literalmente no `save_book`.
+- **Reason**: Fecha a *open question* da spec da Fase 2A. Um álbum de 300 páginas fica em ~180 KB; 20 revisões são ~3,6 MB por volume, e ~130 álbuns cheios cabem no plano free de 500 MB só de histórico. Equilíbrio entre durabilidade e custo previsível.
+- **Trade-off**: O autor que voltar semanas depois só tem as últimas 20 versões; as anteriores foram podadas na própria transação de save.
+- **Scope**: `src/config/limits.ts`, `book_revisions`, `save_book`. Confirma o `N` de `AD-018`.
+- **Date**: 2026-08-04
+- **Status**: active
+
+### AD-026
+- **Decision**: A sanitização de HTML roda na borda de render (`loadForRender` = `migrateDoc` → `sanitizeDoc`), nunca dentro do `StorageAdapter`. `getBook` devolve o documento fielmente armazenado.
+- **Reason**: O contrato exige round-trip sem perda ("getBook devolve o documento salvo, sem perda"). Sanitizar dentro do adapter faria um doc com `<script>` voltar diferente do salvo e quebraria a fidelidade. Sanitizar no carregamento-para-render satisfaz `AD-024`/DATA-09 sem sujar o adapter.
+- **Trade-off**: A obrigação de chamar `loadForRender` no caminho de carga vira responsabilidade do consumidor (rotas da 2B). Se a 2B esquecer, doc da rede chega ao render sem sanitizar — por isso `sanitizeDoc`/`loadForRender` já saem testados na 2A e a 2B tem essa chamada como critério de entrada.
+- **Scope**: `src/book/sanitize.ts`, `src/book/loadDoc.ts`; caminho de carga da Fase 2B.
+- **Date**: 2026-08-04
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: Fases 0 e 1 implementadas (fundação de teste + documento/renderer)
