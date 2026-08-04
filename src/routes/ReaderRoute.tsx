@@ -1,0 +1,140 @@
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Link, useParams } from "react-router-dom";
+import { LiveBook } from "../live-book";
+import { renderCover, renderPages } from "../book/renderPages";
+import { getSurface } from "../book/surfaces/registry";
+import { themeToVars } from "../book/schema";
+import { loadForRender } from "../book/loadDoc";
+import type { BookDoc } from "../book/schema";
+import type { RenderCtx } from "../book/RenderCtx";
+import type { StorageAdapter } from "../data/StorageAdapter";
+import { StorageUnavailableError } from "../data/StorageAdapter";
+import { useAdapter } from "./AdapterContext";
+import { leafForPage } from "./readerUrl";
+
+/**
+ * Leitor de um volume (LIB-01). Carrega o documento pelo adapter, PASSA por
+ * `loadForRender` (migrate + sanitize — paga a dívida `AD-026`; sem isso, HTML da
+ * rede iria ao DOM sem tratamento = XSS armazenado) e monta o `<LiveBook>` abrindo
+ * na página da URL.
+ *
+ * O motor não conhece rota: recebe só `children` (=`renderPages`), `initialLeaf`,
+ * `style` e a casca. A tradução URL↔folha mora aqui, via `readerUrl`/`units`.
+ */
+
+type LoadState =
+  | { status: "loading" }
+  | { status: "not-found" }
+  | { status: "ready"; doc: BookDoc };
+
+/** Rota conectada ao router: resolve params + adapter e delega ao `ReaderShell`. */
+export function ReaderRoute() {
+  const { id, page } = useParams();
+  const adapter = useAdapter();
+  return <ReaderShell adapter={adapter} id={id ?? ""} page={page} />;
+}
+
+export interface ReaderShellProps {
+  adapter: StorageAdapter;
+  id: string;
+  /** Número impresso da URL (`/p/:n`), ainda como string. Ausente = abre na capa. */
+  page?: string;
+}
+
+export function ReaderShell({ adapter, id, page }: ReaderShellProps) {
+  const [state, setState] = useState<LoadState>({ status: "loading" });
+
+  useEffect(() => {
+    let alive = true;
+    setState({ status: "loading" });
+    adapter
+      .getBook(id)
+      .then((loaded) => {
+        if (!alive) return;
+        if (!loaded) {
+          setState({ status: "not-found" });
+          return;
+        }
+        // Borda de carga (AD-026): migra e sanitiza ANTES do primeiro render.
+        const { doc } = loadForRender(loaded.doc);
+        setState({ status: "ready", doc });
+      })
+      .catch((err) => {
+        if (!alive) return;
+        // Backend pausado/rede fora → segue em "carregando", nunca tela de erro.
+        if (err instanceof StorageUnavailableError) return;
+        setState({ status: "not-found" });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [adapter, id]);
+
+  if (state.status === "loading") {
+    return (
+      <main className="app-reader app-reader--loading" aria-busy="true">
+        <p>Carregando volume…</p>
+      </main>
+    );
+  }
+
+  if (state.status === "not-found") {
+    return (
+      <main className="app-reader app-reader--notfound">
+        <h1>Volume não encontrado</h1>
+        <p>Este volume não existe ou foi removido.</p>
+        <Link to="/">Voltar à estante</Link>
+      </main>
+    );
+  }
+
+  return <ReaderView adapter={adapter} doc={state.doc} page={page} />;
+}
+
+function ReaderView({
+  adapter,
+  doc,
+  page,
+}: {
+  adapter: StorageAdapter;
+  doc: BookDoc;
+  page?: string;
+}) {
+  const surface = getSurface(doc.surface);
+  const maxPage = doc.pages.length;
+
+  const ctx: RenderCtx = useMemo(
+    () => ({
+      doc,
+      surface,
+      mode: "read",
+      assetUrl: (ref, size) => adapter.assetUrl(ref, size),
+    }),
+    [doc, surface, adapter],
+  );
+
+  const style = {
+    ...themeToVars(surface.theme),
+    ...themeToVars(doc.theme),
+  } as CSSProperties;
+
+  // Página ausente (rota /b/:id) abre na capa (leaf 0); com :n, na folha da página.
+  const initialLeaf = page == null ? 0 : leafForPage(Number(page), maxPage);
+
+  return (
+    <main className="app-reader">
+      <LiveBook
+        title={doc.title}
+        subtitle={doc.subtitle}
+        sound={false}
+        windowRadius={surface.defaultWindowRadius}
+        style={style}
+        initialLeaf={initialLeaf}
+        cover={renderCover(doc.cover, ctx)}
+        backCover={renderCover(doc.backCover, ctx)}
+      >
+        {renderPages(doc, ctx)}
+      </LiveBook>
+    </main>
+  );
+}
