@@ -56,6 +56,15 @@ function assertWithinLimits(doc: BookDoc): void {
   if (bytes > MAX_DOC_BYTES) throw new TooLargeError();
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** O id de um volume é um uuid. Um id malformado não pode corresponder a nenhum
+ * volume — `getBook` devolve `null` em vez de deixar o Postgres estourar
+ * `invalid input syntax for type uuid` (paridade com o LocalAdapter). */
+function isUuid(id: string): boolean {
+  return UUID_RE.test(id);
+}
+
 /** Token local ou erro explícito — sem token não há como autorizar a escrita. */
 function requireToken(bookId: string): string {
   const token = getEditToken(bookId);
@@ -87,6 +96,7 @@ export class SupabaseAdapter implements StorageAdapter {
   }
 
   async getBook(id: string): Promise<LoadedBook | null> {
+    if (!isUuid(id)) return null;
     const { data, error } = await this.client
       .from("books_public")
       .select("doc, rev")
