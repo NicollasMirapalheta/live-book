@@ -7,6 +7,7 @@ import { AppRouter } from "./routes/AppRouter";
 import { seedDemoIfEmpty } from "./data/seed";
 import "./book/surfaces/manuscript"; // registra a surface manuscript (side-effect)
 import "./live-book/prose.css"; // tipografia lb-* usada pelo HTML dos blocos text
+import "./ui/ui.css"; // camada visual do produto (estante + side menu, AD-015)
 import "./index.css";
 
 /**
