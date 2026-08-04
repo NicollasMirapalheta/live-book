@@ -2,6 +2,12 @@
 // cada arquivo de teste.
 import "@testing-library/jest-dom/vitest";
 
+// jsdom nao implementa IndexedDB, e o `LocalAdapter` (contexto Data) roda sobre ele
+// via `idb`. `fake-indexeddb/auto` instala uma implementacao em memoria nos globais,
+// para o contrato do adapter rodar offline (design da Fase 2A). Infra de teste — a
+// unica alteracao permitida neste arquivo pela AD-022.
+import "fake-indexeddb/auto";
+
 // jsdom nao implementa ResizeObserver, e `useStageScale` observa o viewport
 // ([useStageScale.ts]). Sem este stub, montar o LiveBook num teste lancaria
 // `ReferenceError: ResizeObserver is not defined`. E stub inerte: jsdom nao faz
