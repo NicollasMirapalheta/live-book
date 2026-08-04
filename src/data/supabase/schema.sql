@@ -197,6 +197,10 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+-- As colunas de saida (id, rev, created_at) viram variaveis e colidem com as
+-- colunas homonimas de book_revisions no corpo. use_column resolve a favor da
+-- coluna (o erro "column reference id is ambiguous", pego na verificacao ao vivo).
+#variable_conflict use_column
 declare
   v_token text;
 begin
