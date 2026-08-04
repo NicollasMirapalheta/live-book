@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { NotFoundRoute } from "./NotFoundRoute";
 import { ReaderRoute } from "./ReaderRoute";
 import { ShareRoute } from "./ShareRoute";
+import { ShelfRoute } from "./ShelfRoute";
 
 /**
  * Tabela de rotas do produto (LIB-01, `AD-020`). Renderiza só `<Routes>`; o
@@ -20,7 +21,7 @@ function Placeholder({ name }: { name: string }) {
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Placeholder name="shelf" />} />
+      <Route path="/" element={<ShelfRoute />} />
       <Route path="/new" element={<Placeholder name="new" />} />
       <Route path="/b/:id" element={<ReaderRoute />} />
       <Route path="/b/:id/p/:page" element={<ReaderRoute />} />

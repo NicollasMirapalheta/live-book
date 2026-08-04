@@ -32,9 +32,9 @@ describe("AppRouter", () => {
     expect(link).toHaveAttribute("href", "/");
   });
 
-  it("'/' resolve para a estante", () => {
+  it("'/' resolve para a estante (ShelfRoute)", () => {
     renderAt("/");
-    expect(screen.getByTestId("route-shelf")).toBeInTheDocument();
+    expect(screen.getByText(/carregando a estante/i)).toBeInTheDocument();
   });
 
   it("'/new' resolve para a criação de volume", () => {
