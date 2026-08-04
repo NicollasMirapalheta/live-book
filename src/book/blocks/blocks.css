@@ -53,3 +53,50 @@
   font-size: 13px;
   font-style: normal;
 }
+
+/* --------------------------------------------------------------- estrutura */
+
+.bk-callout {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 1em;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--lb-tint);
+  color: var(--lb-ink-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.bk-callout__icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--lb-accent);
+  color: var(--lb-paper);
+  font-weight: 700;
+  font-size: 13px;
+}
+.bk-callout__body { margin: 0; }
+.bk-callout__body :where(p) { margin: 0; }
+/* tons: reaproveitam a paleta, sem cor nova */
+.bk-callout--warn { background: var(--lb-paper-2); }
+.bk-callout--warn .bk-callout__icon { background: var(--lb-crease); }
+.bk-callout--accent { background: var(--lb-tint); }
+.bk-callout--accent .bk-callout__icon { background: var(--lb-accent-2); }
+
+.bk-rule {
+  margin: 1em 0;
+  border: 0;
+  height: 1px;
+  background: var(--lb-line);
+}
+
+.bk-spacer { flex: 0 0 auto; }
+.bk-spacer--sm { height: 8px; }
+.bk-spacer--md { height: 16px; }
+.bk-spacer--lg { height: 32px; }
+/* fill: come o espaco restante da pagina (coluna flex) e empurra o resto abaixo */
+.bk-spacer--fill { flex: 1 1 auto; min-height: 8px; }
