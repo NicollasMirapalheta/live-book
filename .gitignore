@@ -1,3 +1,9 @@
 node_modules
 dist
 shots
+
+# Variáveis de ambiente locais — nunca commitar segredos. O template versionado
+# é o .env.example.
+.env
+.env.*
+!.env.example
