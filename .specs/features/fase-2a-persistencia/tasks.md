@@ -12,7 +12,8 @@ adequação, Verifier, sensor de discriminação).
 ---
 
 **Design**: `.specs/features/fase-2a-persistencia/design.md`
-**Status**: Draft
+**Status**: Done — 11/11 tasks implementadas e commitadas. Offline: 152 testes verdes.
+Ao vivo: contrato Supabase 14/14, `check-rls` 6/6. Verifier pendente.
 
 ---
 

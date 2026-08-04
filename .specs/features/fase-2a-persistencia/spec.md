@@ -163,17 +163,18 @@ vem da rede.
 
 | ID | Story | Fase | Status |
 |---|---|---|---|
-| DATA-01 | Contrato de armazenamento | — | Pending |
-| DATA-02 | Contrato — round-trip fiel | — | Pending |
-| DATA-03 | Contrato — adapter local e público | — | Pending |
-| DATA-04 | Autorização — token e RPC | — | Pending |
-| DATA-05 | Autorização — RLS e view pública | — | Pending |
-| DATA-06 | Durabilidade — link de resgate | — | Pending |
-| DATA-07 | Durabilidade — histórico de revisões | — | Pending |
-| DATA-08 | Concorrência por `rev` | — | Pending |
-| DATA-09 | Sanitização de HTML | — | Pending |
+| DATA-01 | Contrato de armazenamento | 2A | Done (T5/T6/T7/T9/T10) |
+| DATA-02 | Contrato — round-trip fiel | 2A | Done (T6/T9) |
+| DATA-03 | Contrato — adapter local e público | 2A | Done (T6/T7) |
+| DATA-04 | Autorização — token e RPC | 2A | Done (T8/T9) |
+| DATA-05 | Autorização — RLS e view pública | 2A | Done (T8/T11) |
+| DATA-06 | Durabilidade — link de resgate | 2A | Done (T4) |
+| DATA-07 | Durabilidade — histórico de revisões | 2A | Done (T6/T8/T9) |
+| DATA-08 | Concorrência por `rev` | 2A | Done (T6/T8/T9) |
+| DATA-09 | Sanitização de HTML | 2A | Done (T2/T3) |
 
-**Cobertura:** 9 requisitos, 0 mapeados (Design e Tasks pendentes).
+**Cobertura:** 9 requisitos, 9 mapeados e implementados. Contrato verde nos 3 adapters
+(Supabase ao vivo: 14/14; `check-rls`: 6/6 recusadas). Validação independente pendente.
 
 ---
 
