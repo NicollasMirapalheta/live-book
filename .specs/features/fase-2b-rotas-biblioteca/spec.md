@@ -121,14 +121,18 @@ nunca é feito.
 
 | ID | Story | Fase | Status |
 |---|---|---|---|
-| LIB-01 | Rotas — URL canônica e limites | — | Pending |
-| LIB-02 | Rotas — histórico e navegação do navegador | — | Pending |
-| LIB-03 | Rotas — capítulo e link público | — | Pending |
-| LIB-04 | Estante — listagem e estados | — | Pending |
-| LIB-05 | Estante — só `BookSummary` | — | Pending |
-| LIB-06 | Side menu — lombadas e troca | — | Pending |
-| LIB-07 | A11y — foco e `aria-hidden` | — | Pending |
-| LIB-08 | A11y — ordem de leitura e alvo de toque | — | Pending |
+| LIB-01 | Rotas — URL canônica e limites | 2B | Done (T1/T3/T4/T6/T7) |
+| LIB-02 | Rotas — histórico e navegação do navegador | 2B | Done (T5) |
+| LIB-03 | Rotas — capítulo e link público | 2B | Done (T2/T6/T7) |
+| LIB-04 | Estante — listagem e estados | 2B | Done (T8/T9) |
+| LIB-05 | Estante — só `BookSummary` | 2B | Done (T8) |
+| LIB-06 | Side menu — lombadas e troca | 2B | Done (T10) |
+| LIB-07 | A11y — foco e `aria-hidden` | 2B | Done (T11/T12/T13/T14) |
+| LIB-08 | A11y — ordem de leitura e alvo de toque | 2B | Done (T13/T14) |
+
+**Cobertura:** 8 requisitos implementados. Offline: 218 testes verdes. Preview: estante→
+leitor→URL sync→voltar OK. A11y visual (contraste/44px) verificada no preview. Validação
+independente pendente.
 
 ---
 

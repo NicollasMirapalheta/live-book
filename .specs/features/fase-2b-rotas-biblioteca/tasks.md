@@ -11,7 +11,7 @@ delegação a sub-agentes, revisão de adequação, Verifier, sensor de discrimi
 ---
 
 **Design**: `.specs/features/fase-2b-rotas-biblioteca/design.md`
-**Status**: Draft
+**Status**: Done — 15/15 tasks. Offline: 218 verdes + 2 skip. Preview OK. Verifier pendente.
 
 ---
 
