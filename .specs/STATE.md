@@ -215,15 +215,16 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 
 ## Handoff
 
-- **Feature**: Fases 0 e 1 implementadas (fundação de teste + documento/renderer)
-- **Phase / Task**: Fase 0 (T1–T7) e Fase 1 (T1–T14) concluídas. Specify pronta para 2A, 2B, 3, 4; Design e Tasks dessas fases ainda pendentes.
+- **Feature**: Fase 2A (persistência e acesso) — **concluída e validada**. Fases 0 e 1 já estavam prontas.
+- **Phase / Task**: 2A T1–T11 executadas (Design + Tasks + Execute completos). Verifier: PASS. Specify pronta para 2B, 3, 4; Design/Tasks dessas ainda pendentes.
 - **Completed**:
-  - Fase 0: Vitest+jsdom, `src/book/units.ts` (branded types + conversões), caracterização do motor pela API pública (`src/live-book/__tests__/`), motor intocado.
-  - Fase 1: `schema.ts`, `migrate.ts`, `factory.ts`, registry de surfaces, 8 blocos de núcleo (`bk-*`), `RenderCtx`/`PageErrorBoundary`, `PageBody`, `renderPages`, surface `manuscript`, `demoDoc`, `App.tsx` ligado ao renderer. Props aditivas no motor (`style`, `apiRef`, guarda de `contentEditable`).
-  - 105 testes verdes; `typecheck` e `build` verdes. Verificação independente: PASS (autor ≠ verificador), com discriminação adversarial confirmando que os testes pegam regressões reais.
+  - Fase 0/1: fundação de teste, `units.ts`, schema/migrate/factory/renderPages, surface `manuscript`, `demoDoc`, `App.tsx` no renderer.
+  - **Fase 2A**: camada `src/data/` — interface `StorageAdapter` + suíte de contrato única rodando nos 3 adapters (`LocalAdapter`/IndexedDB, `PublicAdapter` read-only, `SupabaseAdapter`); `schema.sql` (JSONB + `book_revisions` com poda 20, RLS negando escrita direta, 6 RPCs `security definer`, view `books_public` sem `edit_token`); `sanitize.ts` + `loadForRender` (DATA-09); `editTokens.ts` (token + resgate no fragmento); `pickAdapter()` por env; `check-rls.mjs`. `.env`/`.env.example`/`.gitignore` de config.
+  - **Verificação**: offline 152 testes verdes + 2 skip; typecheck/build verdes. **Ao vivo contra o projeto Supabase do autor**: contrato 16/16 (14 + 2 auth negativa), `check-rls` 6/6 recusadas. Verifier independente: PASS, sensor 5/5. Relatório em `.specs/features/fase-2a-persistencia/validation.md`.
 - **In-progress**: nada.
-- **Next step**: Fase 2A (persistência, `.specs/features/fase-2a-persistencia/spec.md`) — precisa de Design + Tasks antes do Execute. Depende de Supabase (backend externo).
-- **Blockers**: a skill `tlc-spec-driven` não estava registrável nesta sessão; o contrato Execute (teste do critério de aceite, gate verde, commit atômico por task, verificação independente ao fim) foi seguido manualmente a partir do `SKILL.md`.
-- **Desvios registrados** (justificados no corpo dos commits): (1) `RenderCtx`/`BlockRenderProps`/`SurfaceDef` co-locados em `RenderCtx.ts` para evitar ciclo de import; registry reexporta. (2) Error boundary por **bloco** (não por página), porque a spec exige que o irmão sobreviva a uma falha. (3) Ordem de execução ajustada por dependência de tipo (T8→blocos→T4; T3 antes de T2).
+- **Next step**: **Fase 2B** (rotas, estante, side menu, a11y — `.specs/features/fase-2b-rotas-biblioteca/spec.md`). É ela que **liga** a camada de dados ao app: hoje `App.tsx` ainda renderiza o `demoDoc`; nada usa o adapter em runtime até a 2B criar as rotas. Precisa de Design + Tasks antes do Execute. **Entrada obrigatória herdada da 2A**: chamar `loadForRender` no caminho de carga (senão XSS armazenado — `AD-026`); rejeição de conflito de `rev` na UI e save-disable em somente-leitura (DATA-08 AC2).
+- **Bugs pegos só na verificação ao vivo** (corrigidos): `list_revisions` com ambiguidade de coluna (`#variable_conflict use_column`); `SupabaseAdapter.getBook` estourando com id não-UUID (guard de formato).
+- **Desvios registrados** (no corpo dos commits): (1) `list_revisions` virou RPC própria (histórico é privado; anon não lê `book_revisions` direto). (2) `PublicAdapter` lê por `ReadSource` injetada, não conhecendo `books_public` (decoupling; a origem vira o leitor da view na 2B). (3) Sanitização também cobre blocos de capa/contracapa.
+- **Config de ambiente**: `.env` local (gitignored) já preenchido com URL + Publishable key do projeto `ahaortvxhhhvmxtdbsta`. O `schema.sql` já foi **aplicado** no projeto pelo autor.
 - **Uncommitted files**: nenhum — tudo commitado no branch.
-- **Branch**: `claude/implantacao-proximos-passos-6b0ac3` (worktree). A fundação (specs/docs/CLAUDE.md/scripts/skills) foi trazida para o branch no primeiro commit; ainda está **untracked em `main`**.
+- **Branch**: `claude/implantacao-proximos-passos-6b0ac3`. A fundação (specs/docs/CLAUDE.md/scripts/skills) continua **untracked em `main`**.
