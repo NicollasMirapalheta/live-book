@@ -3,19 +3,21 @@ import {
   isValidElement,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from "react";
 import { animate, motion, motionValue, useMotionValue, useTransform } from "motion/react";
 import { Leaf } from "./Leaf";
 import { Page } from "./Page";
 import { useStageScale } from "./useStageScale";
 import { usePageSound } from "./usePageSound";
-import type { PageProps, TocEntry } from "./types";
+import type { LiveBookApi, PageProps, TocEntry } from "./types";
 import {
   BOARD_SQUARE,
   DRAG_THRESHOLD,
@@ -54,6 +56,11 @@ export interface LiveBookProps {
   windowRadius?: number;
   className?: string;
   onLeafChange?: (leaf: number) => void;
+  /** Custom properties / estilos aplicados no root. Nao sobrescreve
+   * `--lb-cover-square`, que o motor mantem em sincronia com BOARD_SQUARE. */
+  style?: CSSProperties;
+  /** Ref para a API imperativa (goTo, leaves, getLeaf). */
+  apiRef?: Ref<LiveBookApi>;
 }
 
 /**
@@ -133,6 +140,8 @@ export function LiveBook({
   windowRadius = WINDOW_RADIUS,
   className = "",
   onLeafChange,
+  style,
+  apiRef,
 }: LiveBookProps) {
   const contentPages = useMemo(
     () => Children.toArray(children).filter(isValidElement) as ReactElement<PageProps>[],
@@ -292,11 +301,35 @@ export function LiveBook({
     [angles, leaves, play, onLeafChange, inWindow],
   );
 
+  // API imperativa para o produto em volta (rotas, side menu, editor). Aditiva:
+  // nao muda o comportamento do motor, so o expoe.
+  useImperativeHandle(
+    apiRef,
+    () => ({
+      goTo: (leaf: number) => goTo(leaf),
+      leaves,
+      getLeaf: () => leafRef.current,
+    }),
+    [goTo, leaves],
+  );
+
   /* ---------------------------------------------------------------- teclado */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      // Nao virar a pagina enquanto o foco esta num campo de escrita: input,
+      // textarea, conteudo editavel, ou qualquer subarvore marcada com
+      // data-lb-nokeys (ex.: um editor rico). Senao a seta digitando vira a folha.
+      // isContentEditable/closest so existem em Element — o alvo pode ser document
+      // ou window, entao a checagem fica atras do instanceof.
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        (el instanceof HTMLElement && (el.isContentEditable || el.closest("[data-lb-nokeys]")))
+      ) {
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
         goTo(leafRef.current + 1);
@@ -445,8 +478,10 @@ export function LiveBook({
       className={`lb-root ${className} ${dragging ? "is-dragging" : ""}`}
       data-open={leaf > 0}
       // A sobra da capa dura vem do mesmo numero que a escala usa (BOARD_SQUARE),
-      // para placa e miolo nunca saírem de sincronia.
-      style={{ "--lb-cover-square": `${BOARD_SQUARE}px` } as CSSProperties}
+      // para placa e miolo nunca saírem de sincronia. O `style` do consumidor
+      // entra ANTES, entao --lb-cover-square, aplicada por ultimo, nunca e
+      // sobrescrita (mesmo que o consumidor tente).
+      style={{ ...style, "--lb-cover-square": `${BOARD_SQUARE}px` } as CSSProperties}
     >
       <header className="lb-header">
         <div className="lb-header__id">

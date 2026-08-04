@@ -18,6 +18,19 @@ export interface PageProps {
   className?: string;
 }
 
+/**
+ * API imperativa do motor, exposta via prop `apiRef`. Deixa o produto em volta
+ * (rotas, side menu, editor) navegar sem que o motor conheca nenhum deles.
+ */
+export interface LiveBookApi {
+  /** Navega para a folha indicada (mesma semantica interna de leaf). */
+  goTo(leaf: number): void;
+  /** Total de folhas do volume. */
+  readonly leaves: number;
+  /** A folha atual (0 = fechado). */
+  getLeaf(): number;
+}
+
 export interface TocEntry {
   /** Indice da FACE (0-based) onde o capitulo comeca. Usado como chave e para
    * saber qual item esta ativo. */
