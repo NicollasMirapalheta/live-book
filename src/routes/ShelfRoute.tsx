@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Shelf } from "../ui/Shelf";
 import { useAdapter } from "./AdapterContext";
 import { StorageUnavailableError, type BookSummary } from "../data/StorageAdapter";
+import { MAX_BOOKS } from "../config/limits";
 
 /**
  * Home = estante (LIB-04/LIB-05). Lista os volumes via `adapter.listBooks()` —
@@ -58,14 +59,33 @@ export function ShelfRoute() {
     );
   }
 
+  // Teto do acervo (AD-033): ao atingir, "Novo volume" desabilita com aviso.
+  const atCap = state.books.length >= MAX_BOOKS;
+
   return (
     <main className="app-shelf">
       <header className="app-shelf__header">
         <h1>Estante</h1>
-        <Link to="/new" className="app-shelf__create">
-          Novo volume
-        </Link>
+        {atCap ? (
+          <span
+            className="app-shelf__create is-disabled"
+            role="button"
+            aria-disabled="true"
+            title={`Limite de ${MAX_BOOKS} volumes atingido`}
+          >
+            Novo volume
+          </span>
+        ) : (
+          <Link to="/new" className="app-shelf__create">
+            Novo volume
+          </Link>
+        )}
       </header>
+      {atCap ? (
+        <p className="app-shelf__cap-note">
+          Você atingiu o limite de {MAX_BOOKS} volumes na estante.
+        </p>
+      ) : null}
       <Shelf books={state.books} />
     </main>
   );

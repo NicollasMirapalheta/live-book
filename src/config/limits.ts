@@ -18,6 +18,11 @@ export const MAX_DOC_BYTES = 4 * 1024 * 1024;
  * transacao de save (`AD-025`). Espelhado no SQL. */
 export const REVISION_CAP = 20;
 
+/** Teto de volumes na estante frontal (`AD-033`): o que a prateleira sustenta confortavel.
+ * A UI desabilita "Novo volume" ao atingir; o hard-enforce no SQL fica deferido (acima
+ * disso, uma vista de acervo — expansao futura). */
+export const MAX_BOOKS = 50;
+
 /** Teto de tamanho por objeto de asset (imagem) no bucket, em bytes = 2 MB
  * (`AD-028`). ESPELHADO no `schema.sql` (policy de upload no bucket `book-assets`):
  * ao mudar aqui, mude o literal la — o servidor e a autoridade final. */

@@ -5,6 +5,8 @@ import { ShelfRoute } from "../ShelfRoute";
 import { AdapterProvider } from "../AdapterContext";
 import { LocalAdapter } from "../../data/local/LocalAdapter";
 import { SCHEMA_VERSION, type BookDoc, type BookPage } from "../../book/schema";
+import type { BookSummary } from "../../data/StorageAdapter";
+import { MAX_BOOKS } from "../../config/limits";
 
 // LIB-04/LIB-05 (T8): estante lista BookSummary (capa/título/metadados), com estados
 // vazio (ação de criar) e carregando. Nenhum getBook na montagem.
@@ -82,5 +84,42 @@ describe("estante (ShelfRoute)", () => {
 
     expect(listSpy).toHaveBeenCalled();
     expect(getBookSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("estante — teto de acervo (AD-033 / T3)", () => {
+  function summaries(n: number): BookSummary[] {
+    return Array.from({ length: n }, (_, i) => ({
+      id: `id-${i}`,
+      title: `Volume ${i + 1}`,
+      surface: "manuscript",
+      pageCount: 1,
+      rev: 1,
+      visibility: "private" as const,
+      updatedAt: "2026-08-05T00:00:00.000Z",
+    }));
+  }
+
+  it("no teto (50 volumes) 'Novo volume' é desabilitado e há aviso, sem link para /new", async () => {
+    const adapter = new LocalAdapter(`shelf-${crypto.randomUUID()}`);
+    vi.spyOn(adapter, "listBooks").mockResolvedValue(summaries(MAX_BOOKS));
+    renderShelf(adapter);
+
+    await screen.findByText(new RegExp(`limite de ${MAX_BOOKS} volumes`, "i"));
+    // não existe link de criação quando no teto
+    expect(screen.queryByRole("link", { name: /novo volume/i })).toBeNull();
+    // o controle desabilitado está presente
+    const disabled = screen.getByText(/novo volume/i);
+    expect(disabled).toHaveAttribute("aria-disabled", "true");
+  });
+
+  it("abaixo do teto 'Novo volume' é um link ativo para /new e não há aviso", async () => {
+    const adapter = new LocalAdapter(`shelf-${crypto.randomUUID()}`);
+    vi.spyOn(adapter, "listBooks").mockResolvedValue(summaries(3));
+    renderShelf(adapter);
+
+    const link = await screen.findByRole("link", { name: /novo volume/i });
+    expect(link).toHaveAttribute("href", "/new");
+    expect(screen.queryByText(/limite de .* volumes/i)).toBeNull();
   });
 });
