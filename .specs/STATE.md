@@ -123,7 +123,7 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Trade-off**: Home tem menos impacto no primeiro segundo que uma estante skeuomórfica.
 - **Scope**: `src/ui/`, `docs/design/design-system.md`.
 - **Date**: 2026-08-03
-- **Status**: active
+- **Status**: active; paleta e "herói só no side menu" **superseded by AD-031** (identidade amadeirada + estante-herói na home). Princípios estruturais (escopo de token `--lb-*`/`--app-*`, Fraunces+Inter, sem novas deps, sem toggle claro/escuro) permanecem.
 
 ### AD-016
 - **Decision**: Testes derivam de critérios de aceite da spec e o gate vale desde a primeira fase, com verificador independente e commit atômico por tarefa.
@@ -179,7 +179,7 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Trade-off**: Algumas features ficam mais trabalhosas por não poderem alterar o motor. Exceção única e já aprovada: AD-005.
 - **Scope**: `src/live-book/`.
 - **Date**: 2026-08-03
-- **Status**: active; exceções aditivas pontuais: AD-005 (`stageOffset` retrato), AD-027 (`inert` de a11y em `Leaf.tsx`).
+- **Status**: active; exceções aditivas pontuais: AD-005 (`stageOffset` retrato), AD-027 (`inert` de a11y em `Leaf.tsx`), AD-032 (reskin só-pele: cor/textura/tipografia via `--lb-*` e CSS não-geométrico).
 
 ### AD-023
 - **Decision**: A surface `album` sai da Fase 1 e passa para a Fase 3, junto do pipeline de mídia. A Fase 1 entrega apenas `manuscript`.
@@ -245,6 +245,30 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Date**: 2026-08-05
 - **Status**: active
 
+### AD-031
+- **Decision**: A identidade visual do produto é **biblioteca amadeirada e aconchegante**, com "papel iluminado" agora **literal**: o ambiente (home, mesa de leitura) é madeira quente em penumbra; a página é a superfície clara e iluminada. A **home é uma estante frontal de verdade** — o usuário tira uma **lombada** (não um card). A **leitura** é o livro pousado numa **mesa amadeirada texturada** sob um poço de **luz de abajur** (fosco, sem verniz). A **magia é explícita porém morna** (livro que levita + faíscas âmbar), reservada a home/carregando/vazio, nunca durante a leitura. Acentos: **`--brasa`** (terracota — destaques/CTA) e **`--salvia`** (verde — foco/links/marca-página). Supersede a paleta e a regra "herói só no side menu" do `AD-015`; mantém os princípios estruturais do `AD-015`.
+- **Reason**: Direção definida com o autor em 5 rodadas de exploração visual (artefatos). "Só funcionar" não bastava para o álbum-presente; a metáfora de biblioteca/aventura aconchegante dá alma ao produto. A paleta bege+lilás anterior não expressava isso.
+- **Trade-off**: A "sala" passa a ser quente-escura (não bege claro), o que muda o cromo do produto; a fidelidade final de madeira/luz depende da implementação (textura leve bem escolhida + gradientes de luz), afinável depois sem retravar a direção.
+- **Scope**: `docs/design/design-system.md` (reescrito), `src/ui/`, temas de surface, reskin do motor (`AD-032`).
+- **Date**: 2026-08-05
+- **Status**: active
+
+### AD-032
+- **Decision**: Exceção aditiva ao `AD-022`: a Fase 4 pode **retocar a aparência (a "pele") do motor** para entrar na nova identidade — cor e textura do papel, borda e sombra das folhas, tipografia de capítulo/número/capitular, fita de leitura, e o **fundo do palco (a mesa), a luz do abajur e a vinheta** — **exclusivamente** via custom properties `--lb-*` e CSS que **não é geometria**. Permanecem intocados (protegidos por `AD-022`): `Face`, `faces`, `surfaceOf`, `angles`, `surfaceCache`, `inWindow`, `toc`, `Leaf.tsx`, `constants.ts` e **a geometria de `live-book.css`** (dimensões, transformações, perspectiva, ângulos, timing da virada).
+- **Reason**: O motor nunca teve design deliberado; para o produto ficar coeso, a pele precisa mudar. Mas a mecânica foi afinada por performance e é o ativo mais caro — o reskin não pode tocá-la. Autorizado explicitamente pelo autor.
+- **Trade-off**: Encosta em `live-book.css`, o arquivo mais sensível; mitigado por limitar a mudança a propriedades de cor/textura/tipografia e à caracterização da Fase 0 como rede.
+- **Scope**: `--lb-*` na borda do `LiveBook`, CSS não-geométrico de `live-book.css`/temas de surface. Análogo às exceções `AD-005`/`AD-027`.
+- **Date**: 2026-08-05
+- **Status**: active
+
+### AD-033
+- **Decision**: A home é uma **estante frontal reta**; a **largura da prateleira acompanha a quantidade de volumes** (folga curta + um slot pontilhado "＋" convidando ao próximo), crescendo até a largura total no **teto de ~50 volumes**. Acima disso, uma **vista de acervo** é expansão futura. O **corredor em perspectiva está fora de escopo** por ora.
+- **Reason**: O autor cravou a estante frontal como identidade da biblioteca e recusou dedicar tempo ao corredor agora; a régua de largura evita a prateleira meio-vazia. ~50 é o que a frontal sustenta confortável sem virar catálogo.
+- **Trade-off**: Coleções muito grandes ficam sem tratamento dedicado até a vista de acervo; aceito (o alvo atual são poucas dezenas de volumes). O teto ~50 vira limite de produto (a encodar em `src/config/limits.ts` na implementação).
+- **Scope**: home/estante em `src/ui/` e `src/routes/ShelfRoute`; `docs/design/design-system.md`.
+- **Date**: 2026-08-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: **Fase 3 (imagens, surface `album`, modo retrato) — concluída e validada.** Fases 0, 1, 2A e 2B também prontas.
@@ -259,8 +283,9 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
   - **Fase 3 — Performance** (MEDIA-11): `shot.mjs` resolve browser pelo Playwright; `e2e/perf.spec.ts` + `playwright.config.ts` (mede FPS falha <30, conta faces falha >10) — **rodou em chromium real: 10 faces, ~57 FPS sob throttle 4×**. `@playwright/test` em devDeps; `e2e/**` fora do glob do Vitest.
 - **Também concluído nesta sessão**: **feature `casca-visual-rotas`** (remedia lacuna da 2B — rotas sem CSS; leitor abria espremido). `src/ui/app-shell.css` novo + afordância de volume vazio no ReaderRoute; validado no navegador (PASS), 318 testes. Commits `6563f66`/`ec6a9fe`.
 - **Decisão de roadmap `AD-030`**: entra uma **Fase 4 dedicada a Sistema de Design & UX** (antes do editor); o editor vira **Fase 5**, journal→6, scan→7, auth→8. Pasta do editor renomeada `fase-4-editor`→`fase-5-editor`. Roadmap e cabeçalho do editor atualizados.
+- **Fase 4 — Design travado nesta sessão**: 5 rodadas de exploração visual (artefatos) → direção **biblioteca amadeirada/aconchegente** cravada. Registrados `AD-031` (identidade), `AD-032` (reskin só-pele do motor), `AD-033` (home = estante frontal, largura escala, teto ~50, corredor fora). **`docs/design/design-system.md` reescrito** para a nova direção (paleta madeira/papel/brasa/sálvia/âmbar, home-estante, leitura-mesa-abajur, magia livro-farol, movimento, a11y). Spec da Fase 4 atualizada (direção resolvida, out-of-scope).
 - **In-progress**: nada.
-- **Next step**: **Fase 4 — Sistema de Design & UX** (`.specs/features/fase-4-design-sistema-ux/spec.md`, Specify pronta; precisa de **Design** — a direção visual concreta se define aí com o autor, via skill `frontend-blueprint`; depois Tasks + Execute). Verificação por preview + checklist `web-design-guidelines` + UAT (estética não é testável por vitest). Só então a **Fase 5 (editor)** é construída sobre o sistema.
+- **Next step**: **Fase 4 — Tasks + Execute.** O sistema está definido; falta o **plano de aplicação tela a tela** (design.md opcional curto + tasks.md) e a execução: aplicar os tokens/estilos em `src/ui/` e rotas, o reskin só-pele do motor (`AD-032`), a home-estante (`AD-033`, teto ~50 a encodar em `src/config/limits.ts`), estados vazio/carregando/erro, magia (home/loading/empty), responsivo e a11y. Verificação: preview no navegador + checklist `web-design-guidelines` + UAT do autor (estética não é vitest); FPS da Fase 3 preservado. Depois, **Fase 5 (editor)** sobre o sistema.
 - **Gates diferidos da Fase 3** (não bloqueiam a 4, mas pendentes antes de "entregar o presente"): (1) validar gatilho `3/4` + gesto de swipe em **celular real** (`AD-029`); (2) rodar `npx playwright test` num ambiente com Chromium no CI. (3) SPEC_DEVIATION a apertar quando Auth entrar: upload autorizado por uuid-segredo (`AD-013`) em vez de `edit_token`, marcado em `schema.sql`.
 - **Ponto de atenção herdado**: app roda por `pickAdapter()` — com `.env` usa Supabase (precisa criar bucket/policy do `schema.sql` novo no projeto ao ir ao vivo com upload), sem env cai no Local com demo semeado. Cache de object URLs do LocalAdapter é em memória (some no reload) — só importa ao renderizar blobs locais após reload; hidratar em `getBook` fica deferido.
 - **Config de ambiente**: `.env` local (gitignored) com URL + Publishable key do projeto `ahaortvxhhhvmxtdbsta`; `schema.sql` da 2A já aplicado — **a adição de upload/policy da Fase 3 ainda precisa ser aplicada no projeto** antes do upload ao vivo.

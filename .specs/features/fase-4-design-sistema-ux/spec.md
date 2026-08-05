@@ -35,7 +35,8 @@ fase eleva o `AD-015` a um sistema completo e o aplica em tudo que existe, **ant
 |---|---|
 | UI do editor | É a Fase 5; **consome** este sistema, não é construída aqui |
 | Modo escuro | Fora de escopo do roadmap (metáfora é papel iluminado) |
-| Alterar o motor de virada | `AD-022`; polimento só por props aditivas e CSS vars na borda |
+| Geometria/mecânica do motor | `AD-022`; **reskin só-pele permitido** (`AD-032`: cor/textura/tipografia via `--lb-*` e CSS não-geométrico), geometria não |
+| Corredor em perspectiva na home | Fora de escopo agora (`AD-033`); estante frontal + vista de acervo futura |
 | Novas dependências de runtime (Tailwind, biblioteca de componentes, etc.) | `AD-015`: 3 deps de runtime é qualidade; sistema é CSS plano + componentes próprios |
 | Rebrand / novo nome / logo profissional | Identidade visual sim; branding de marca formal não |
 | Redesenho de fluxos de backend/dados | Só a camada de apresentação e experiência |
@@ -46,7 +47,7 @@ fase eleva o `AD-015` a um sistema completo e o aplica em tudo que existe, **ant
 
 | Assunção / decisão | Default escolhido | Razão | Confirmado? |
 |---|---|---|---|
-| Direção visual concreta (referências, paleta final, "cara" do produto) | definida na **fase de Design** desta feature, via discovery com o autor (skill `frontend-blueprint`: referências, moodboard, tokens, tipografia) | "bonito" depende do gosto/referências do autor; não é decidível no papel pela spec | **n — resolver no Design** |
+| Direção visual concreta (referências, paleta final, "cara" do produto) | **RESOLVIDA (`AD-031`)**: biblioteca amadeirada/aconchegante, papel iluminado literal, home = estante frontal de lombadas, leitura na mesa sob abajur (fosco), magia explícita morna; acentos brasa (terracota) + sálvia (verde). Documentada em `design-system.md`. | definida com o autor em 5 rodadas de exploração visual | **s** |
 | Verificação das ACs visuais | preview no navegador + checklist `web-design-guidelines` + **UAT do autor** | qualidade estética é parcialmente subjetiva e CSS/layout não renderiza em jsdom | s |
 | Base do sistema | **estende** o `AD-015` (tokens `--lb-*`/`--app-*`, Fraunces + Inter, CSS plano) | não jogar fora o que já existe; consolidar, não substituir | s |
 | Escala tipográfica, grid de espaçamento, elevação | definir uma escala explícita (ex.: type scale modular, espaçamento base 4/8, níveis de sombra) | sistema precisa de regras, não valores ad hoc | s (valores no Design) |
