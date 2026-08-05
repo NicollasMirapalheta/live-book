@@ -43,7 +43,7 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Trade-off**: É o único lugar onde mexemos na geometria do motor recém-otimizado; risco de regressão maior que as demais mudanças.
 - **Scope**: `useStageScale.ts`, `stageOffset` em `LiveBook.tsx`.
 - **Date**: 2026-08-03
-- **Status**: active
+- **Status**: active; detalhado por AD-029 (mecanismo do reenquadramento).
 
 ### AD-006
 - **Decision**: O único eixo de variação armazenado no volume é `surface` (apresentação). Ingestores são um catálogo separado, e a origem das páginas fica como `provenance` (histórico, não restrição).
@@ -219,6 +219,22 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Trade-off**: Encosta no arquivo mais protegido do motor (afinado por performance). Mitigado: derivado de props que já mudam a cada virada (sem re-render novo, sem `MotionValue` novo), e a caracterização da Fase 0 (LIB-07 AC6) é a rede — qualquer regressão estrutural quebra teste.
 - **Scope**: `src/live-book/Leaf.tsx` (só o atributo `inert` derivado); LIB-07.
 - **Date**: 2026-08-04
+- **Status**: active
+
+### AD-028
+- **Decision**: O upload de asset entra no contrato do `StorageAdapter` como método `uploadAsset(bookId, ProcessedImage): AssetRef`, implementado pelos três adapters e coberto pela suíte de contrato única (`adapter.contract.ts`); não vira serviço paralelo. `assetUrl(ref, size)` passa a honrar `size` pela convenção de path `.../{ref.id}/{size}`, e `gcAssets` deixa de ser no-op (coleta órfãos preservando o que qualquer revisão retida referencia, não só o doc atual).
+- **Reason**: O 2A já deixou o gancho pronto (`gcAssets`/`assetUrl` com comentário "uploads são Fase 3") e o princípio Open Host Service exige que o resto do produto conheça só a interface. Um serviço à parte duplicaria a fronteira de autorização (`edit_token`, `AD-012`) e a suíte de contrato.
+- **Trade-off**: `PublicAdapter.uploadAsset` precisa existir só para lançar `WriteForbiddenError`; o contrato cresce.
+- **Scope**: `src/data/StorageAdapter.ts`, os 3 adapters, `adapter.contract.ts`, `src/data/supabase/schema.sql` (bucket policy + teto 2 MB), `src/config/limits.ts` (`MAX_ASSET_BYTES`).
+- **Date**: 2026-08-05
+- **Status**: active
+
+### AD-029
+- **Decision**: O modo retrato é um reenquadramento **estritamente aditivo** dentro do motor: um hook novo `usePortraitFrame` (arquivo novo em `src/live-book/`, fora da lista vigiada por `guard-engine.mjs`), disparado por `matchMedia("(max-aspect-ratio: 3/4)")`, que (1) põe `useStageScale` em modo página única (escala pela largura de UMA página), (2) soma um termo de enquadramento ao `stageX` para centralizar a metade esquerda/direita do spread, e (3) instala swipe no viewport que alterna o lado e, no limite, chama o `goTo` existente. `angles`, `faces`, `surfaceOf`, `surfaceCache`, `inWindow`, `toc` e a geometria de `live-book.css` **não** mudam.
+- **Reason**: Detalha e confirma o `AD-005` ("reusa `stageOffset`"). Mantém a virada 3D intacta (`AD-022`) e o produto/rota ignorante da matemática de enquadramento (`AD-009`), pondo a lógica no contexto Reading, onde ela pertence. Validação em celular real fica como gate de aceite no fim do Execute (o gatilho 3/4 e o gesto não são decidíveis no papel).
+- **Trade-off**: Encosta nos dois arquivos WARNED do motor (`useStageScale.ts`, `LiveBook.tsx`) — mas só de forma aditiva; a caracterização da Fase 0 (MEDIA-10 AC6) é a rede contra regressão.
+- **Scope**: `src/live-book/usePortraitFrame.ts` (novo), edições aditivas em `useStageScale.ts` e no cálculo de `stageX` de `LiveBook.tsx`. Detalha `AD-005`.
+- **Date**: 2026-08-05
 - **Status**: active
 
 ## Handoff
