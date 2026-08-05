@@ -15,7 +15,7 @@ import {
 import { animate, motion, motionValue, useMotionValue, useTransform } from "motion/react";
 import { Leaf } from "./Leaf";
 import { Page } from "./Page";
-import { useStageScale } from "./useStageScale";
+import { usePortraitFrame } from "./usePortraitFrame";
 import { usePageSound } from "./usePageSound";
 import type { LiveBookApi, PageProps, TocEntry } from "./types";
 import {
@@ -172,7 +172,16 @@ export function LiveBook({
   const [tocOpen, setTocOpen] = useState(false);
 
   const viewportRef = useRef<HTMLDivElement>(null);
-  const scale = useStageScale(viewportRef);
+  // Retrato (AD-005/AD-029): usePortraitFrame orquestra a escala (uma pagina no
+  // celular em pe), o termo de enquadramento e o swipe. `goTo` e passado por ref
+  // porque so e definido adiante; `getLeaf` le a folha atual. Fora do retrato,
+  // scale e frameOffset se comportam como antes (frameOffset = 0).
+  const goToRef = useRef<(leaf: number) => void>(() => {});
+  const { scale, frameOffset } = usePortraitFrame({
+    viewportRef,
+    goTo: (leaf) => goToRef.current(leaf),
+    getLeaf: () => leafRef.current,
+  });
   const scaleRef = useRef(scale);
   scaleRef.current = scale;
 
@@ -213,6 +222,15 @@ export function LiveBook({
     // scale entra nas deps para recalcular ao redimensionar
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [angles, leaves, scale, stageX]);
+
+  // Retrato (AD-029 item 2): soma o termo de enquadramento ao stageX para
+  // centralizar a metade esquerda/direita do spread. frameOffset e 0 fora do
+  // retrato, entao stageXFramed === stageX no desktop (comportamento intacto).
+  const frameX = useMotionValue(frameOffset);
+  useEffect(() => {
+    frameX.set(frameOffset);
+  }, [frameOffset, frameX]);
+  const stageXFramed = useTransform([stageX, frameX], ([a, b]: number[]) => a + b);
 
   // Opacidade das placas de capa dura (o .lb-well) atras das folhas, dirigida
   // pelo angulo da capa da frente (folha 0) e da contracapa (ultima folha). A
@@ -301,6 +319,9 @@ export function LiveBook({
     },
     [angles, leaves, play, onLeafChange, inWindow],
   );
+  // O swipe do retrato (usePortraitFrame) vira a folha pelo mesmo goTo; passado
+  // por ref porque o hook e chamado antes desta definicao.
+  goToRef.current = goTo;
 
   // API imperativa para o produto em volta (rotas, side menu, editor). Aditiva:
   // nao muda o comportamento do motor, so o expoe.
@@ -623,7 +644,9 @@ export function LiveBook({
               // x dirigido pelo angulo da capa (ver stageX/stageOffset): a
               // re-centragem segue a rotacao e completa aos 90°, entao a
               // revelacao do spread fica parada — igual a virada de uma folha.
-              x: stageX,
+              // stageXFramed = stageX + termo de enquadramento do retrato (0 no
+              // desktop, AD-029).
+              x: stageXFramed,
             }}
           >
             <div
