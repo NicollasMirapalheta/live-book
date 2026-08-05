@@ -17,10 +17,10 @@
   --lb-line: #e8e0d0;
 
   --lb-accent: #7a55d1;
-  --lb-accent-2: #a98bf0;
-  --lb-accent-3: #c9b6fb;
-  --lb-tint: #efe8ff;
-  --lb-crease: #b79bf2;
+  --lb-accent-2: #c9824a;
+  --lb-accent-3: #dcae86;
+  --lb-tint: #efe0cd;
+  --lb-crease: #b79a72;
 
   /* A CAPA e UM UNICO elemento (a face/pagina .lb-page--cover). Sem placa
      separada — entao gradiente, imagem, o que for, vale, porque e uma caixa so.
@@ -93,7 +93,7 @@
   height: 30px;
   border-radius: 10px 10px 10px 3px;
   background: linear-gradient(140deg, var(--lb-accent-2), var(--lb-accent));
-  box-shadow: 0 4px 12px rgba(122, 85, 209, 0.32);
+  box-shadow: 0 4px 12px rgba(90, 54, 20, 0.32);
 }
 
 .lb-header__title {
@@ -123,7 +123,7 @@
   flex: 1 1 auto;
   height: 6px;
   border-radius: 999px;
-  background: rgba(122, 85, 209, 0.14);
+  background: rgba(90, 54, 20, 0.14);
 }
 
 .lb-progress__fill {
@@ -153,7 +153,7 @@
   border: 2.5px solid var(--lb-accent);
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(122, 85, 209, 0.35);
+  box-shadow: 0 2px 8px rgba(90, 54, 20, 0.35);
   transform: translateY(-50%);
   transition: left 640ms cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -168,7 +168,7 @@
 
 .lb-iconbtn {
   padding: 8px 14px;
-  border: 1px solid rgba(122, 85, 209, 0.28);
+  border: 1px solid rgba(90, 54, 20, 0.28);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   color: var(--lb-accent);
@@ -307,11 +307,11 @@
   border-radius: 4px;
   background: linear-gradient(
     90deg,
-    rgba(58, 43, 76, 0) 0%,
-    rgba(58, 43, 76, 0.3) 42%,
-    rgba(58, 43, 76, 0.42) 50%,
-    rgba(58, 43, 76, 0.3) 58%,
-    rgba(58, 43, 76, 0) 100%
+    rgba(42, 26, 14, 0) 0%,
+    rgba(42, 26, 14, 0.3) 42%,
+    rgba(42, 26, 14, 0.42) 50%,
+    rgba(42, 26, 14, 0.3) 58%,
+    rgba(42, 26, 14, 0) 100%
   );
   /* opacidade dirigida por MotionValue (spineOpacity) */
 }
@@ -391,11 +391,11 @@
 }
 
 .lb-face__shade--front {
-  background: linear-gradient(90deg, rgba(58, 43, 76, 0.55) 0%, rgba(58, 43, 76, 0) 62%);
+  background: linear-gradient(90deg, rgba(42, 26, 14, 0.55) 0%, rgba(42, 26, 14, 0) 62%);
 }
 
 .lb-face__shade--back {
-  background: linear-gradient(270deg, rgba(58, 43, 76, 0.5) 0%, rgba(58, 43, 76, 0) 62%);
+  background: linear-gradient(270deg, rgba(42, 26, 14, 0.5) 0%, rgba(42, 26, 14, 0) 62%);
 }
 
 /* ------------------------------------------------------------------ paginas */
@@ -432,12 +432,12 @@
 
 .lb-page--right .lb-page__gutter {
   left: 0;
-  background: linear-gradient(90deg, rgba(58, 43, 76, 0.16), rgba(58, 43, 76, 0));
+  background: linear-gradient(90deg, rgba(42, 26, 14, 0.16), rgba(42, 26, 14, 0));
 }
 
 .lb-page--left .lb-page__gutter {
   right: 0;
-  background: linear-gradient(270deg, rgba(58, 43, 76, 0.16), rgba(58, 43, 76, 0));
+  background: linear-gradient(270deg, rgba(42, 26, 14, 0.16), rgba(42, 26, 14, 0));
 }
 
 .lb-page__sheet {
@@ -502,7 +502,7 @@
 }
 
 .lb-page--accent {
-  background: linear-gradient(170deg, #f6f1ff 0%, #ece2ff 100%);
+  background: linear-gradient(170deg, #f7efdc 0%, #efe1c4 100%);
 }
 
 .lb-page--chapter {
@@ -562,8 +562,8 @@
 
 /* verso do papel levantado */
 .lb-curl__paper {
-  background: linear-gradient(315deg, #ffffff 0%, #ece3ff 40%, #c4affa 100%);
-  box-shadow: -8px -8px 22px rgba(58, 43, 76, 0.26);
+  background: linear-gradient(315deg, #fbf4e6 0%, #efe1c4 40%, #d8c39a 100%);
+  box-shadow: -8px -8px 22px rgba(42, 26, 14, 0.26);
 }
 
 .lb-corner--next .lb-curl__paper {
@@ -572,7 +572,7 @@
 }
 
 .lb-corner--prev .lb-curl__paper {
-  background: linear-gradient(45deg, #ffffff 0%, #ece3ff 40%, #c4affa 100%);
+  background: linear-gradient(45deg, #fbf4e6 0%, #efe1c4 40%, #d8c39a 100%);
   clip-path: polygon(0 0, 100% 100%, 0 100%);
   border-bottom-left-radius: var(--lb-radius);
 }
@@ -604,8 +604,8 @@
 .lb-curl__shadow {
   background: radial-gradient(
     120% 120% at 100% 100%,
-    rgba(58, 43, 76, 0.34) 0%,
-    rgba(58, 43, 76, 0) 70%
+    rgba(42, 26, 14, 0.34) 0%,
+    rgba(42, 26, 14, 0) 70%
   );
   filter: blur(2px);
 }
@@ -613,8 +613,8 @@
 .lb-corner--prev .lb-curl__shadow {
   background: radial-gradient(
     120% 120% at 0% 100%,
-    rgba(58, 43, 76, 0.34) 0%,
-    rgba(58, 43, 76, 0) 70%
+    rgba(42, 26, 14, 0.34) 0%,
+    rgba(42, 26, 14, 0) 70%
   );
 }
 
@@ -778,7 +778,7 @@
   display: grid;
   width: 46px;
   height: 46px;
-  border: 1px solid rgba(122, 85, 209, 0.22);
+  border: 1px solid rgba(90, 54, 20, 0.22);
   border-radius: 50%;
   /* Fundo solido translucido em vez de backdrop-filter: blur(). O blur reamostra
      e desfoca o fundo A CADA FRAME em que a folha passa por baixo (as setas ficam
@@ -836,7 +836,7 @@
   text-transform: uppercase;
   cursor: pointer;
   writing-mode: vertical-rl;
-  box-shadow: 3px 4px 14px rgba(122, 85, 209, 0.35);
+  box-shadow: 3px 4px 14px rgba(90, 54, 20, 0.35);
 }
 
 .lb-toc__panel {
@@ -845,10 +845,10 @@
   left: 100%;
   width: 300px;
   padding: 22px 20px;
-  border: 1px solid rgba(122, 85, 209, 0.16);
+  border: 1px solid rgba(90, 54, 20, 0.16);
   border-radius: 0 20px 20px 0;
   background: rgba(255, 253, 248, 0.96);
-  box-shadow: 18px 22px 48px -20px rgba(58, 43, 76, 0.45);
+  box-shadow: 18px 22px 48px -20px rgba(42, 26, 14, 0.45);
   opacity: 0;
   transform: translate(-14px, -50%);
   transition: opacity 260ms ease, transform 320ms cubic-bezier(0.33, 1, 0.68, 1);
