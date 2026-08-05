@@ -11,6 +11,7 @@
  */
 
 import type { AssetRef, AssetSize } from "../../book/schema";
+import type { ProcessedImage } from "../../media/pipeline";
 import {
   WriteForbiddenError,
   type AdapterName,
@@ -61,6 +62,10 @@ export class PublicAdapter implements StorageAdapter {
   }
 
   async restoreRevision(_id: string, _revisionId: string): Promise<SaveResult> {
+    throw new WriteForbiddenError();
+  }
+
+  async uploadAsset(_bookId: string, _img: ProcessedImage): Promise<AssetRef> {
     throw new WriteForbiddenError();
   }
 

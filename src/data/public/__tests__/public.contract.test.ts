@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runReadContract } from "../../__tests__/adapter.contract";
+import { runReadContract, fakeProcessedImage } from "../../__tests__/adapter.contract";
 import { PublicAdapter } from "../PublicAdapter";
 import { LocalAdapter } from "../../local/LocalAdapter";
 import { WriteForbiddenError } from "../../StorageAdapter";
@@ -58,6 +58,12 @@ describe("PublicAdapter — recusa de escrita (DATA-03 AC4)", () => {
 
   it("gcAssets rejeita com WriteForbiddenError", async () => {
     await expect(make().gcAssets("x")).rejects.toBeInstanceOf(WriteForbiddenError);
+  });
+
+  it("uploadAsset rejeita com WriteForbiddenError (AD-028: leitor nao sobe asset)", async () => {
+    await expect(make().uploadAsset("x", fakeProcessedImage())).rejects.toBeInstanceOf(
+      WriteForbiddenError,
+    );
   });
 
   it("assetUrl continua sincrona e devolve string", () => {
