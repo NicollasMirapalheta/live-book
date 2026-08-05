@@ -1,0 +1,84 @@
+/* Biblioteca de estilos de componente — Fase 4 (T2, DS-03/04).
+ *
+ * Primitivos reutilizáveis do produto, consumindo os tokens de tokens.css. Prefixo
+ * `.ui-` para não colidir com o CSS por-tela (`.app-*`). As telas adotam estes nos
+ * passos de aplicação (T4/T10/T11). Foco visível e alvo de 44px moram aqui (DS-04).
+ *
+ * Importar depois de tokens.css. */
+
+/* ---------------------------------------------------------------- tipografia */
+.ui-kicker{
+  font-family:var(--app-font); font-size:11px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--app-tinta-suave);
+}
+.ui-display{ font-family:var(--app-display); font-weight:600; letter-spacing:-.01em; line-height:1.06; text-wrap:balance; }
+.ui-title{ font-family:var(--app-display); font-weight:600; font-size:18px; line-height:1.3; }
+.ui-body{ font-family:var(--app-font); font-size:15px; line-height:1.6; }
+.ui-small{ font-family:var(--app-font); font-size:13px; line-height:1.5; color:var(--app-tinta-suave); }
+/* palavra em realce dentro de um título (o tratamento aprovado nas rodadas) */
+.ui-accent{ color:var(--app-brasa); }
+
+/* ---------------------------------------------------------------- botão */
+.ui-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:44px; padding:0 22px; border:0; border-radius:var(--app-pill);
+  background:var(--app-brasa); color:#fff; font:inherit; font-weight:600;
+  text-decoration:none; cursor:pointer;
+  transition:filter var(--app-dur-fast) var(--app-ease), transform var(--app-dur-fast) var(--app-ease);
+}
+.ui-btn:hover:not(:disabled){ filter:brightness(1.08); }
+.ui-btn:active:not(:disabled){ transform:translateY(1px); }
+.ui-btn:disabled{ opacity:.5; cursor:default; }
+/* variante discreta (sobre madeira ou papel) */
+.ui-btn--ghost{
+  background:transparent; color:var(--app-brasa);
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--app-brasa) 55%, transparent);
+}
+.ui-btn--ghost:hover:not(:disabled){ background:color-mix(in srgb, var(--app-brasa) 12%, transparent); filter:none; }
+
+/* ---------------------------------------------------------------- campo */
+.ui-field{
+  min-height:44px; padding:0 14px; border-radius:var(--app-radius);
+  border:1px solid var(--app-papel-borda); background:var(--app-papel);
+  color:var(--app-tinta); font:inherit;
+}
+.ui-field::placeholder{ color:var(--app-tinta-fraca); }
+
+/* ---------------------------------------------------------------- cartão / painel */
+.ui-card{
+  background:var(--app-papel); border:1px solid var(--app-papel-borda);
+  border-radius:var(--app-radius); box-shadow:var(--app-shadow-1);
+}
+.ui-panel{
+  background:var(--app-papel); border-radius:var(--app-radius-l);
+  box-shadow:var(--app-shadow-2);
+}
+
+/* ---------------------------------------------------------------- banner (estado) */
+.ui-banner{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border-radius:var(--app-radius);
+  background:color-mix(in srgb, var(--app-papel) 94%, transparent); color:var(--app-tinta);
+  box-shadow:var(--app-shadow-1); font-size:14px;
+}
+.ui-banner--erro{ box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--app-erro) 45%, transparent); }
+
+/* ---------------------------------------------------------------- foco (DS-04) */
+/* Anel visível em TODO controle de produto. Sálvia sobre papel; sobre madeira o
+   componente pode trocar por --app-brasa localmente. Nunca `outline:none` sem isto. */
+.ui-btn:focus-visible,
+.ui-field:focus-visible,
+.ui-focus:focus-visible,
+a.ui-link:focus-visible{
+  outline:3px solid var(--app-salvia);
+  outline-offset:3px;
+  border-radius:6px;
+}
+
+/* link de texto */
+.ui-link{ color:var(--app-salvia-fundo, var(--app-salvia)); font-weight:600; text-decoration:none; }
+.ui-link:hover{ text-decoration:underline; }
+
+@media (prefers-reduced-motion: reduce){
+  .ui-btn{ transition:none; }
+}
