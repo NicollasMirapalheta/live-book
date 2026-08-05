@@ -24,10 +24,11 @@ describe("surface album — esqueleto e tema (MEDIA-06 AC1)", () => {
 
   it("o tema do album traduz para custom properties --lb-* proprias (distinto do manuscript)", () => {
     const vars = themeToVars(album.theme);
-    expect(vars["--lb-accent"]).toBe("#b5745a");
+    expect(vars["--lb-accent"]).toBe("#b5622a");
+    // papel PROPRIO e neutro, para nao tingir as fotos — distinto do papel creme do
+    // manuscript (a distincao do tema mora aqui, nao no accent, que ambos compartilham)
     expect(vars["--lb-paper"]).toBe("#fffdf9");
-    // tema proprio: nao herda o accent do manuscript
-    expect(vars["--lb-accent"]).not.toBe("#7a55d1");
+    expect(vars["--lb-paper"]).not.toBe("#faf3e2");
   });
 });
 
