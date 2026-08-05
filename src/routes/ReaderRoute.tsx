@@ -184,6 +184,9 @@ function ReaderView({
 
   return (
     <main className="app-reader">
+      <Link to="/" className="app-reader__back" aria-label="Voltar à biblioteca">
+        <span aria-hidden="true">←</span> Biblioteca
+      </Link>
       <LiveBook
         title={doc.title}
         subtitle={doc.subtitle}

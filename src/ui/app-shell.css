@@ -22,6 +22,36 @@
   background: var(--app-bg);
 }
 
+/* Voltar à biblioteca — pílula de papel flutuante sobre a mesa (T10). */
+.app-reader__back {
+  position: absolute;
+  top: clamp(12px, 2vw, 20px);
+  left: clamp(12px, 2vw, 20px);
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--app-pill, 999px);
+  background: color-mix(in srgb, var(--app-papel, #faf3e2) 92%, transparent);
+  color: var(--app-tinta, #2a1e14);
+  font-family: var(--app-font);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--app-shadow-2, 0 14px 34px -12px rgba(16, 8, 2, .55));
+  transition: transform var(--app-dur-fast, 140ms) var(--app-ease, ease), filter var(--app-dur-fast, 140ms) var(--app-ease, ease);
+}
+.app-reader__back:hover { filter: brightness(1.03); transform: translateY(-1px); }
+.app-reader__back:focus-visible {
+  outline: 3px solid var(--app-salvia, #5f7f4c);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-reader__back { transition: none; }
+}
+
 /* Estados de página inteira do leitor (carregando / não encontrado): centralizados,
    não texto solto no topo. Compartilham o layout com os estados do import. */
 .app-reader--loading,

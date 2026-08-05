@@ -47,6 +47,13 @@ describe("ReaderShell — carga e montagem", () => {
     });
   });
 
+  it("oferece voltar à biblioteca (link para /)", async () => {
+    const { adapter, id } = await seed(textDoc(numberedPages(4)));
+    renderShell(adapter, id, "1");
+    const back = await screen.findByRole("link", { name: /biblioteca/i });
+    expect(back).toHaveAttribute("href", "/");
+  });
+
   it("sem :n (rota /b/:id) abre na capa, não no miolo", async () => {
     const { adapter, id } = await seed(textDoc(numberedPages(10)));
     const { container } = renderShell(adapter, id);
