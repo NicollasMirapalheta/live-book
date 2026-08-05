@@ -7,3 +7,7 @@ shots
 .env
 .env.*
 !.env.example
+
+# Playwright (MEDIA-11)
+test-results
+playwright-report

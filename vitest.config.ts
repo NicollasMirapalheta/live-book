@@ -19,6 +19,8 @@ export default defineConfig({
     // seus testes quebram por duas copias de React (dispatcher de hooks null),
     // poluindo o gate com falhas fantasmas. Estende os excludes padrao, nao os
     // substitui.
-    exclude: [...configDefaults.exclude, "**/.claude/**"],
+    // `e2e/**` roda no Playwright (`.spec.ts` do MEDIA-11), nao no Vitest — o glob
+    // padrao do Vitest casaria com ele e quebraria o gate unitario.
+    exclude: [...configDefaults.exclude, "**/.claude/**", "e2e/**"],
   },
 });
