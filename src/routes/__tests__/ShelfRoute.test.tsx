@@ -62,13 +62,15 @@ describe("estante (ShelfRoute)", () => {
     const create = await screen.findByRole("link", { name: /criar volume/i });
     expect(create).toHaveAttribute("href", "/new");
     expect(screen.getByText(/estante está vazia/i)).toBeInTheDocument();
+    // motivo da magia (livro-farol) presente no estado vazio (DS-14)
+    expect(document.querySelector(".app-magic")).not.toBeNull();
   });
 
   it("mostra estado de carregamento, não tela em branco (LIB-04 AC3)", () => {
     const adapter = new LocalAdapter(`shelf-${crypto.randomUUID()}`);
     renderShelf(adapter);
     // Síncrono, antes de listBooks resolver.
-    expect(screen.getByText(/carregando a estante/i)).toBeInTheDocument();
+    expect(screen.getByText(/abrindo a biblioteca/i)).toBeInTheDocument();
   });
 
   it("na montagem NENHUM getBook é chamado — só listBooks (LIB-05 AC5)", async () => {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Shelf } from "../ui/Shelf";
+import { Magic } from "../ui/Magic";
 import { useAdapter } from "./AdapterContext";
 import { StorageUnavailableError, type BookSummary } from "../data/StorageAdapter";
 import { MAX_BOOKS } from "../config/limits";
@@ -42,7 +43,8 @@ export function ShelfRoute() {
   if (state.status === "loading") {
     return (
       <main className="app-shelf app-shelf--loading" aria-busy="true">
-        <p>Carregando a estante…</p>
+        <Magic variant="quiet" />
+        <p>Abrindo a biblioteca…</p>
       </main>
     );
   }
@@ -50,8 +52,9 @@ export function ShelfRoute() {
   if (state.books.length === 0) {
     return (
       <main className="app-shelf app-shelf--empty">
+        <Magic variant="hero" />
         <h1>Sua estante está vazia</h1>
-        <p>Nenhum volume ainda. Que tal criar o primeiro?</p>
+        <p>Seu primeiro livro aparece aqui. Crie um volume e ele ganha um lugar na estante.</p>
         <Link to="/new" className="app-shelf__create">
           Criar volume
         </Link>

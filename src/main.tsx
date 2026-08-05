@@ -10,6 +10,7 @@ import "./book/surfaces/album"; // registra a surface album (side-effect — MED
 import "./live-book/prose.css"; // tipografia lb-* usada pelo HTML dos blocos text
 import "./ui/tokens.css"; // tokens do sistema de design (Fase 4, AD-031) — antes de ui/app-shell
 import "./ui/components.css"; // primitivos de componente do sistema (T2)
+import "./ui/magic.css"; // livro-farol — motivo de magia (T6/T12)
 import "./ui/ui.css"; // camada visual do produto (estante + side menu, AD-015)
 import "./ui/app-shell.css"; // casca visual das rotas (leitor/criar/importar + estados)
 import "./index.css";

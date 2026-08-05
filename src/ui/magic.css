@@ -1,0 +1,78 @@
+/* Livro-farol — motivo de magia (T6/T12, DS-10/DS-14). Warm, explícito, reservado.
+ * Respeita prefers-reduced-motion: sem animação, composição parada igualmente bonita. */
+
+.app-magic {
+  position: relative;
+  flex: none;
+}
+.app-magic--hero { width: 190px; height: 150px; }
+.app-magic--quiet { width: 118px; height: 94px; }
+
+/* brilho quente por baixo */
+.app-magic__glow {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+  width: 150%;
+  height: 150%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 206, 130, .5), transparent 62%);
+  pointer-events: none;
+}
+
+/* o livro aberto que levita */
+.app-magic__book {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: 78%;
+  aspect-ratio: 1.5 / 1;
+  display: flex;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .45));
+}
+.app-magic__page {
+  flex: 1;
+  background: linear-gradient(180deg, #fbf1d8, #ecd8ac);
+}
+.app-magic__page--l { border-radius: 4px 0 0 4px; }
+.app-magic__page--r { border-radius: 0 4px 4px 0; }
+.app-magic__gutter {
+  width: 3%;
+  align-self: stretch;
+  background: linear-gradient(90deg, rgba(0, 0, 0, .28), rgba(0, 0, 0, .05) 50%, rgba(0, 0, 0, .28));
+}
+
+/* páginas soltando e faíscas subindo */
+.app-magic__leaf {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: .72;
+  background: linear-gradient(180deg, #fbf1d8, #e6cf9c);
+  border-radius: 2px;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, .5);
+}
+.app-magic__spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--app-ambar-glow, #ffcf88), var(--app-ambar, #e0a24e));
+  box-shadow: 0 0 6px 2px rgba(255, 200, 120, .55);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-magic__book { animation: app-magic-hover 5s ease-in-out infinite alternate; }
+  .app-magic__leaf { animation: app-magic-rise 6s ease-in-out infinite; }
+  .app-magic__spark { animation: app-magic-rise 5s ease-in-out infinite; }
+  @keyframes app-magic-hover {
+    from { transform: translate(-50%, -52%); }
+    to   { transform: translate(-50%, -42%); }
+  }
+  @keyframes app-magic-rise {
+    0%   { transform: translateY(10px) rotate(0); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(-38px) rotate(22deg); opacity: 0; }
+  }
+}

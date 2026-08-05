@@ -34,7 +34,7 @@ describe("AppRouter", () => {
 
   it("'/' resolve para a estante (ShelfRoute)", () => {
     renderAt("/");
-    expect(screen.getByText(/carregando a estante/i)).toBeInTheDocument();
+    expect(screen.getByText(/abrindo a biblioteca/i)).toBeInTheDocument();
   });
 
   it("'/new' resolve para a criação de volume (NewBookRoute)", () => {
