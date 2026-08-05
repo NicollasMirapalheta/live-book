@@ -157,6 +157,10 @@ function ReaderView({
   // `useState` inicial no motor: só o primeiro valor conta (montagem).
   const initialLeaf = page == null ? 0 : leafForPage(Number(page), maxPage);
 
+  // Volume sem miolo é esperado logo após "Novo volume" (autoria é a Fase 4). Sem um
+  // aviso, um livro só de capa parece um bug (SHELL-05).
+  const isEmpty = doc.pages.length === 0;
+
   // Virada do motor → URL. SEMPRE `replace` (AD-020): sem isso, folhear dezenas de
   // páginas enterra o botão voltar do navegador.
   const onLeafChange = useCallback(
@@ -194,6 +198,12 @@ function ReaderView({
       >
         {renderPages(doc, ctx)}
       </LiveBook>
+      {isEmpty ? (
+        <div className="app-reader__empty" role="note">
+          <span>Este volume está vazio.</span>
+          <Link to={`/b/${id}/import`}>Adicionar fotos</Link>
+        </div>
+      ) : null}
     </main>
   );
 }

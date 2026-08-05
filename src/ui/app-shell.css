@@ -1,0 +1,256 @@
+/* Casca visual das rotas (leitor, criar, importar) e seus estados — AD-015.
+ *
+ * Complementa `ui.css` (estante + side menu): reusa os mesmos tokens `--app-*` e a
+ * linguagem editorial (fundo escuro, papel, Fraunces + Inter, pílulas de 44px, anel
+ * de foco 3px). Sistema editorial, sem paleta nova.
+ *
+ * SHELL-01/02: a correção do motor espremido mora aqui. `.lb-root` é `height:100%`
+ * e precisa de um ancestral com altura definida; a cadeia `html/body/#root` já é
+ * `height:100%`, então basta `.app-reader { height: 100% }` para o motor voltar a
+ * ocupar a viewport. Sem esta regra o `<main>` fica com altura automática e o palco
+ * colapsa no piso de escala 0.25. */
+
+/* ---------------------------------------------------------------- leitor */
+
+/* A cadeia de altura: #root(100%) -> .app-reader(100%) -> .lb-root(100%). */
+.app-reader {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--app-bg);
+}
+
+/* Estados de página inteira do leitor (carregando / não encontrado): centralizados,
+   não texto solto no topo. Compartilham o layout com os estados do import. */
+.app-reader--loading,
+.app-reader--notfound,
+.app-import--loading,
+.app-import--notfound,
+.app-import--conflict,
+.app-import--working,
+.app-new,
+.app-new--created,
+.app-import,
+.app-import--result {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: clamp(24px, 6vw, 72px);
+  background: var(--app-bg);
+  color: var(--app-paper);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.app-reader--loading,
+.app-reader--notfound,
+.app-import--loading,
+.app-import--notfound,
+.app-import--conflict,
+.app-import--working {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.app-reader--loading,
+.app-import--loading,
+.app-import--working {
+  color: var(--app-ink-soft, #9aa0a8);
+}
+
+/* Afordância de volume vazio (SHELL-05): banner sobreposto, sem afetar a altura do
+   motor (por isso `position:absolute` sobre `.app-reader` relative). */
+.app-reader__empty {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(16px, 4vh, 40px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-paper) 94%, transparent);
+  color: var(--app-ink);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.app-reader__empty a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--app-accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-reader__empty a:hover {
+  filter: brightness(1.08);
+}
+
+/* --------------------------------------------------- páginas de formulário */
+
+/* Um cartão de papel centralizado sobre o fundo escuro, para criar/importar. */
+.app-new,
+.app-new--created,
+.app-import,
+.app-import--result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.app-new > *,
+.app-new--created > *,
+.app-import > *,
+.app-import--result > * {
+  width: min(520px, 100%);
+}
+
+.app-new h1,
+.app-new--created h1,
+.app-import h1,
+.app-import--result h1,
+.app-reader--notfound h1,
+.app-import--notfound h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 600;
+  margin: 0;
+}
+
+.app-new p,
+.app-new--created p,
+.app-import p,
+.app-reader--notfound p,
+.app-import--notfound p {
+  margin: 0;
+  color: color-mix(in srgb, var(--app-paper) 78%, transparent);
+  line-height: 1.5;
+}
+
+/* Campo (label + select) da criação. */
+.app-new__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.app-new__field select,
+.app-import__pick {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-line);
+  background: var(--app-paper);
+  color: var(--app-ink);
+  font: inherit;
+}
+
+/* Botões de ação: pílula de acento, alvo de toque 44px. */
+.app-new button,
+.app-new--created button,
+.app-import button {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app-new button:hover:not(:disabled),
+.app-new--created button:hover,
+.app-import button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.app-new button:disabled,
+.app-import button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Link de resgate: destacado e sem estourar a largura (SHELL-03 AC4). */
+.app-new__rescue {
+  display: block;
+  width: min(520px, 100%);
+  padding: 12px 14px;
+  border-radius: var(--app-radius);
+  background: color-mix(in srgb, var(--app-paper) 10%, transparent);
+  color: var(--app-paper);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+/* Alvo de drop da importação: claramente delimitado. */
+.app-import__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  padding: 24px;
+  border: 2px dashed color-mix(in srgb, var(--app-paper) 40%, transparent);
+  border-radius: var(--app-radius);
+  color: color-mix(in srgb, var(--app-paper) 80%, transparent);
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.app-import__drop:hover,
+.app-import__drop.is-over {
+  border-color: var(--app-accent);
+  background: color-mix(in srgb, var(--app-accent) 10%, transparent);
+}
+
+.app-import__failures {
+  text-align: left;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--app-paper) 78%, transparent);
+}
+
+/* Links de texto (voltar à estante, etc.) e anel de foco em todos os controles das
+   cascas (LIB-04 AC4 / AD-019), que o `ui.css` só cobria na estante/side menu. */
+.app-reader--notfound a,
+.app-import--notfound a,
+.app-new--created a {
+  color: var(--app-accent);
+  font-weight: 600;
+}
+
+.app-reader a:focus-visible,
+.app-reader__empty a:focus-visible,
+.app-new a:focus-visible,
+.app-new button:focus-visible,
+.app-new select:focus-visible,
+.app-new--created a:focus-visible,
+.app-new--created button:focus-visible,
+.app-import a:focus-visible,
+.app-import button:focus-visible,
+.app-import label:focus-within {
+  outline: 3px solid var(--app-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}

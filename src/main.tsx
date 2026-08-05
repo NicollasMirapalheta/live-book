@@ -9,6 +9,7 @@ import "./book/surfaces/manuscript"; // registra a surface manuscript (side-effe
 import "./book/surfaces/album"; // registra a surface album (side-effect — MEDIA-06 AC5)
 import "./live-book/prose.css"; // tipografia lb-* usada pelo HTML dos blocos text
 import "./ui/ui.css"; // camada visual do produto (estante + side menu, AD-015)
+import "./ui/app-shell.css"; // casca visual das rotas (leitor/criar/importar + estados)
 import "./index.css";
 
 /**

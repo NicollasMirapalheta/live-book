@@ -96,3 +96,22 @@ describe("ReaderShell — carga e montagem", () => {
     expect(screen.getByText(/carregando/i)).toBeInTheDocument();
   });
 });
+
+describe("ReaderShell — afordância de volume vazio (SHELL-05)", () => {
+  it("volume sem miolo mostra aviso com link para importar fotos", async () => {
+    const { adapter, id } = await seed(textDoc([]));
+    renderShell(adapter, id);
+    const link = await screen.findByRole("link", { name: /adicionar fotos/i });
+    expect(link).toHaveAttribute("href", `/b/${id}/import`);
+  });
+
+  it("volume com ao menos uma página NÃO mostra o aviso de vazio", async () => {
+    const { adapter, id } = await seed(textDoc(numberedPages(1)));
+    const { container } = renderShell(adapter, id);
+    // espera o motor montar (rótulo de progresso presente) antes de afirmar ausência
+    await waitFor(() =>
+      expect(container.querySelector(".lb-progress__label")).not.toBeNull(),
+    );
+    expect(screen.queryByRole("link", { name: /adicionar fotos/i })).toBeNull();
+  });
+});
