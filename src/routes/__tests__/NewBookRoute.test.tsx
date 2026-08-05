@@ -61,6 +61,20 @@ describe("criação de volume (NewBookRoute)", () => {
     expect(screen.getByText(/fora do navegador/i)).toBeInTheDocument();
   });
 
+  it("o volume nasce com 5 páginas em branco (não abre vazio)", async () => {
+    const adapter = new LocalAdapter(`new-${crypto.randomUUID()}`);
+    const spy = vi.spyOn(adapter, "createBook");
+    renderNew(adapter);
+
+    fireEvent.click(screen.getByRole("button", { name: /criar/i }));
+    await screen.findByRole("heading", { name: /volume criado/i });
+
+    const doc = spy.mock.calls[0][0];
+    expect(doc.pages).toHaveLength(5);
+    // páginas em branco: sem blocos
+    expect(doc.pages.every((p) => p.blocks.length === 0)).toBe(true);
+  });
+
   it("navega para o volume criado ao abrir", async () => {
     const adapter = new LocalAdapter(`new-${crypto.randomUUID()}`);
     const spy = vi.spyOn(adapter, "createBook");

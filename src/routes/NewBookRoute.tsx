@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createEmptyDoc } from "../book/factory";
+import { createEmptyDoc, createPage } from "../book/factory";
 import { listSurfaces } from "../book/surfaces/registry";
 import { encodeRescue, setEditToken } from "../data/editTokens";
 import { useAdapter } from "./AdapterContext";
 import type { SurfaceId } from "../book/schema";
+
+/** Um volume novo nasce com algumas páginas em branco, para não abrir vazio: dá ao
+ * autor "onde escrever" enquanto o editor (Fase 5) não existe. */
+const INITIAL_BLANK_PAGES = 5;
 
 /**
  * Criação de volume (LIB-04, DATA-06 / `AD-017`). Escolhe um preset de surface,
@@ -27,7 +31,10 @@ export function NewBookRoute() {
 
   async function handleCreate() {
     setPhase({ step: "creating" });
-    const doc = createEmptyDoc({ surface });
+    const doc = createEmptyDoc({
+      surface,
+      pages: Array.from({ length: INITIAL_BLANK_PAGES }, () => createPage({})),
+    });
     const { id, editToken } = await adapter.createBook(doc);
     setEditToken(id, editToken); // permissão de edição, por volume
     const rescue = `${window.location.origin}/${encodeRescue(id, editToken)}`;
