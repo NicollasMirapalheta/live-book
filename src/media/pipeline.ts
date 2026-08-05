@@ -67,11 +67,16 @@ export async function processInPipeline(
   const dims = deps.checkDimensions(bitmap.width, bitmap.height);
   if (!dims.ok) throw new ImageRejectedError(dims.reason);
 
+  // O lqip e computado ANTES de despachar ao worker: o caminho worker TRANSFERE o
+  // bitmap (transfer list do postMessage), o que o DESANEXA na main thread; fazer o
+  // lqip depois disso lanca "the image source is detached". O borrao de 20px na main
+  // thread e desprezivel (<50ms, MEDIA-01 AC3). No fallback main-thread a ordem e
+  // indiferente (nao ha transferencia).
+  const lqip = await deps.makeLqip(bitmap);
+
   const variants = deps.supportsWorker()
     ? await deps.runWorker(bitmap, orientation)
     : await deps.runMain(bitmap, orientation);
-
-  const lqip = await deps.makeLqip(bitmap);
 
   return { page: variants.page, thumb: variants.thumb, lqip, w: variants.w, h: variants.h };
 }

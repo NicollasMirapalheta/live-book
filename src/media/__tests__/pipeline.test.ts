@@ -113,3 +113,27 @@ describe("processInPipeline — composicao do ProcessedImage", () => {
     expect(viaWorker).toEqual(viaMain);
   });
 });
+
+describe("processInPipeline — LQIP a partir de bitmap vivo (regressao detach)", () => {
+  it("computa o lqip antes de o worker transferir/desanexar o bitmap", async () => {
+    // Modela a semantica de transferencia: o caminho worker envia o bitmap por
+    // transfer list (postMessage(..., [bitmap])), o que o DESANEXA na main thread.
+    // Um makeLqip chamado DEPOIS disso quebraria com "the image source is detached"
+    // — foi o bug pego so no navegador real (MEDIA-01 AC7 sob o caminho worker AC3).
+    const state = { detached: false };
+    const runWorker = vi.fn(async () => {
+      state.detached = true; // a transferencia neutraliza o bitmap na main thread
+      return variants;
+    });
+    const makeLqip = vi.fn(async () => {
+      if (state.detached) throw new Error("the image source is detached");
+      return "data:image/webp;base64,LQ";
+    });
+    const out = await processInPipeline(
+      new File([], "a.jpg"),
+      makeDeps({ supportsWorker: () => true, runWorker, makeLqip }),
+    );
+    expect(out.lqip).toBe("data:image/webp;base64,LQ");
+    expect(makeLqip).toHaveBeenCalledTimes(1);
+  });
+});
