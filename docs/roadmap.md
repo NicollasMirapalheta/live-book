@@ -176,8 +176,10 @@ da Fase 4.
 | Casca do editor e trilho | `src/editor/{EditorShell,PageRail,Inspector}.tsx` |
 | Texto rico e drop de fotos | `src/editor/{RichText,DropZone}.tsx` |
 | Layouts e inspectors do `album` | `src/book/surfaces/album/` |
+| **Criação elaborada** (`/new`): escolher tipo de conteúdo (vazio / note / manuscrito / álbum) com estrutura inicial por tipo | `src/routes/NewBookRoute.tsx` |
 
-Nenhuma mudança em `src/live-book/`.
+Nenhuma mudança em `src/live-book/`. Já feito na Fase 4: volume novo nasce com 5 páginas
+em branco (para não abrir vazio até o editor existir).
 
 **Pronto quando:** dá para montar um álbum de 10 páginas com fotos de ponta a ponta; as
 setas não viram a página com foco em texto; o caret não pula durante o autosave; e
