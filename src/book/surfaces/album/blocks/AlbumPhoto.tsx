@@ -53,6 +53,9 @@ export function AlbumPhoto({ block, ctx }: BlockRenderProps) {
           height={h}
           loading="eager"
           decoding="async"
+          // Proporcao extrema e CONTIDA sem distorcer: `object-fit` preserva o
+          // aspecto (a moldura recorta, nunca estica) — MEDIA-07 edge case.
+          style={{ objectFit: "cover" }}
         />
       </span>
       {b.caption ? <figcaption className="bk-album-photo__caption">{b.caption}</figcaption> : null}
