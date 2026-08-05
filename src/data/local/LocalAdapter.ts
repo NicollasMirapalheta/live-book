@@ -4,14 +4,20 @@
  * Existe para (a) desenvolver offline sem configurar backend e (b) provar que a
  * interface NAO vazou detalhe de Postgres: mesma semantica de `rev`/conflito/
  * historico, escrita junto do resto, nao depois. Roda o contrato inteiro
- * (`runAdapterContract`) verde.
+ * (`runAdapterContract`/`runUploadContract`) verde.
  *
- * `assetUrl` devolve `ref.id` por identidade — a resolucao real de blob e da Fase 3.
+ * Upload (Fase 3, AD-028): as variantes `page`/`thumb` de cada asset vivem no
+ * IndexedDB por `{id}/{size}`; `assetUrl(ref, size)` devolve um object URL cacheado
+ * (SINCRONO — invariante 5), criado no upload. Sem `size`, mantem a identidade
+ * legada (`ref.id`), o que a rende chamadas antigas compativeis. `gcAssets` coleta
+ * blobs orfaos preservando os referenciados por qualquer revisao retida.
  */
 
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import { MAX_DOC_BYTES, MAX_PAGES, REVISION_CAP } from "../../config/limits";
-import type { AssetRef, BookDoc } from "../../book/schema";
+import type { AssetRef, AssetSize, BookDoc } from "../../book/schema";
+import type { ProcessedImage } from "../../media/pipeline";
+import { collectAssetIds } from "../assetRefs";
 import {
   NotFoundError,
   RevConflictError,
@@ -44,9 +50,20 @@ interface RevisionRecord {
   createdAt: string;
 }
 
+/** Uma variante de asset (page/thumb) gravada por `{assetId}/{size}`. */
+interface AssetRecord {
+  /** chave = `${assetId}/${size}`. */
+  key: string;
+  bookId: string;
+  assetId: string;
+  size: AssetSize;
+  blob: Blob;
+}
+
 interface LiveBookDB extends DBSchema {
   books: { key: string; value: BookRecord };
   revisions: { key: string; value: RevisionRecord; indexes: { by_book: string } };
+  assets: { key: string; value: AssetRecord; indexes: { by_book: string } };
 }
 
 /** Rejeita, sem tocar em estado, um doc acima dos limites (`TooLargeError`). Puro:
@@ -63,15 +80,25 @@ export class LocalAdapter implements StorageAdapter {
 
   private dbPromise: Promise<IDBPDatabase<LiveBookDB>> | null = null;
 
+  /** object URLs por `{assetId}/{size}`, criados no upload; `assetUrl` so LE daqui
+   * (mantendo-a sincrona). Em memoria: some ao recarregar (limitacao aceita da 3). */
+  private readonly urlCache = new Map<string, string>();
+
   constructor(private readonly dbName = "live-book") {}
 
   private db(): Promise<IDBPDatabase<LiveBookDB>> {
     if (!this.dbPromise) {
-      this.dbPromise = openDB<LiveBookDB>(this.dbName, 1, {
-        upgrade(db) {
-          db.createObjectStore("books", { keyPath: "id" });
-          const revs = db.createObjectStore("revisions", { keyPath: "id" });
-          revs.createIndex("by_book", "bookId");
+      this.dbPromise = openDB<LiveBookDB>(this.dbName, 2, {
+        upgrade(db, oldVersion) {
+          if (oldVersion < 1) {
+            db.createObjectStore("books", { keyPath: "id" });
+            const revs = db.createObjectStore("revisions", { keyPath: "id" });
+            revs.createIndex("by_book", "bookId");
+          }
+          if (oldVersion < 2) {
+            const assets = db.createObjectStore("assets", { keyPath: "key" });
+            assets.createIndex("by_book", "bookId");
+          }
         },
       });
     }
@@ -177,15 +204,74 @@ export class LocalAdapter implements StorageAdapter {
     return this.saveBook(id, revision.doc, book.rev);
   }
 
-  async gcAssets(id: string): Promise<void> {
-    // Na 2A nao ha store de blob (uploads sao Fase 3): coletar orfaos e no-op, mas
-    // o contrato exige que os assets do doc atual sobrevivam — o que e trivial aqui,
-    // pois nada e removido. Confirma so que o volume existe.
-    const book = await (await this.db()).get("books", id);
-    if (!book) throw new NotFoundError();
+  async uploadAsset(bookId: string, img: ProcessedImage): Promise<AssetRef> {
+    // uuid novo por envio: idempotencia por identidade, nao por conteudo (AD-028).
+    const assetId = crypto.randomUUID();
+    const db = await this.db();
+    const tx = db.transaction("assets", "readwrite");
+    await tx.store.put({ key: `${assetId}/page`, bookId, assetId, size: "page", blob: img.page });
+    await tx.store.put({ key: `${assetId}/thumb`, bookId, assetId, size: "thumb", blob: img.thumb });
+    await tx.done;
+
+    // Pre-cria os object URLs, para `assetUrl` (sincrona) so ler o cache.
+    this.cacheUrl(assetId, "page", img.page);
+    this.cacheUrl(assetId, "thumb", img.thumb);
+
+    return { id: assetId, w: img.w, h: img.h, lqip: img.lqip };
   }
 
-  assetUrl(ref: AssetRef): string {
-    return ref.id;
+  async gcAssets(id: string): Promise<void> {
+    const db = await this.db();
+    const book = await db.get("books", id);
+    if (!book) throw new NotFoundError();
+
+    // Referenciado = doc atual + toda revisao RETIDA (AD-025): nao apagar o que uma
+    // versao restauravel ainda cita.
+    const referenced = collectAssetIds(book.doc);
+    const revisions = await db.getAllFromIndex("revisions", "by_book", id);
+    for (const revision of revisions) {
+      for (const assetId of collectAssetIds(revision.doc)) referenced.add(assetId);
+    }
+
+    const tx = db.transaction("assets", "readwrite");
+    const records = await tx.store.index("by_book").getAll(id);
+    for (const record of records) {
+      if (!referenced.has(record.assetId)) {
+        await tx.store.delete(record.key);
+        this.revokeUrl(record.key);
+      }
+    }
+    await tx.done;
+  }
+
+  assetUrl(ref: AssetRef, size?: AssetSize): string {
+    // Sem size: identidade legada (chamadas anteriores a Fase 3).
+    if (!size) return ref.id;
+    const key = `${ref.id}/${size}`;
+    return this.urlCache.get(key) ?? key;
+  }
+
+  /** Cria e guarda um object URL para a variante; no-op em ambiente sem
+   * `URL.createObjectURL` (jsdom no gate), onde `assetUrl` cai na convencao de path. */
+  private cacheUrl(assetId: string, size: AssetSize, blob: Blob): void {
+    try {
+      if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+        this.urlCache.set(`${assetId}/${size}`, URL.createObjectURL(blob));
+      }
+    } catch {
+      /* sem object URL: assetUrl usa `${id}/${size}` */
+    }
+  }
+
+  private revokeUrl(key: string): void {
+    const url = this.urlCache.get(key);
+    if (url) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* ambiente sem revoke */
+      }
+      this.urlCache.delete(key);
+    }
   }
 }
