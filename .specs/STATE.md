@@ -237,6 +237,14 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
 - **Date**: 2026-08-05
 - **Status**: active
 
+### AD-030
+- **Decision**: O projeto passa a ter uma **fase dedicada a Sistema de Design & UX** (nova Fase 4), posicionada **antes do editor** (que vira Fase 5). Ela define uma linguagem visual completa e um sistema de componentes documentados (fonte única em `docs/design/design-system.md` + tokens) e os **aplica em todas as telas existentes**; não é só polimento pontual. Renumera o roadmap: editor→5, journal→6, scan/pdf→7, auth→8.
+- **Reason**: A postura anterior — design distribuído por fase, sem fase própria — acumulou dívida que só apareceu ao abrir o app na web (leitor espremido, rotas cruas; a `casca-visual-rotas` remediou o pior, mas de forma reativa). O produto tem como primeiro entregável um álbum-presente: "só funcionar" não basta, precisa de ótima UI/UX. Construir o editor (superfície de UI enorme) antes do sistema só criaria mais dívida para repolir; fazê-lo antes faz o editor nascer coerente. Decisão do autor (2026-08-05): fase agora, antes do editor, escopo sistema+aplicação.
+- **Trade-off**: Adia o editor em uma fase. Qualidade visual é em parte subjetiva, então parte das ACs é checklist de design (web-design-guidelines) + UAT do autor, não teste automatizado — coerente com o fato de CSS/layout não renderizar em jsdom.
+- **Scope**: `docs/design/design-system.md`, `src/ui/`, aplicação nas rotas e na surface `album`. Estende `AD-015` (não o substitui); respeita `AD-022` (motor intocado), `AD-005`/reduced-motion e o orçamento de performance da Fase 3. Sem modo escuro (fora de escopo do roadmap).
+- **Date**: 2026-08-05
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: **Fase 3 (imagens, surface `album`, modo retrato) — concluída e validada.** Fases 0, 1, 2A e 2B também prontas.
@@ -249,8 +257,10 @@ antigas, só marcar `superseded by`). `## Handoff` é sobrescrito a cada pausa.
   - **Fase 3 — Surface `album`** (`src/book/surfaces/album/`): SurfaceDef (tema, `chrome.margin=tight`, `defaultWindowRadius=2`), 6 layouts (`full-bleed`/`single`/`duo`/`grid`/`photo-text`/`text`), 4 molduras (`plain`/`polaroid`/`bleed`/`circle`), `album.css`. Registrar é aditivo (MEDIA-06 AC5, provado); reusa blocos de núcleo `Image`/`Gallery`/`Text` (sanitizados por `loadForRender`). Import lateral em `main.tsx`.
   - **Fase 3 — Retrato** (`AD-029`/`AD-005`, estritamente aditivo): `useStageScale(ref,{portrait})` modo página única (≥320px em 390×844; off = byte-idêntico); `usePortraitFrame.ts` NOVO (matchMedia `(max-aspect-ratio: 3/4)`, `frameSide`, swipe alterna lado e vira no limite via `goTo`); wiring em `LiveBook.tsx` (`goToRef`, `frameX`, `x: stageXFramed`). `angles`/`faces`/`surfaceOf`/`surfaceCache`/`inWindow`/`toc`/geometria CSS/`constants.ts` intocados; caracterização Fase 0 verde.
   - **Fase 3 — Performance** (MEDIA-11): `shot.mjs` resolve browser pelo Playwright; `e2e/perf.spec.ts` + `playwright.config.ts` (mede FPS falha <30, conta faces falha >10) — **rodou em chromium real: 10 faces, ~57 FPS sob throttle 4×**. `@playwright/test` em devDeps; `e2e/**` fora do glob do Vitest.
+- **Também concluído nesta sessão**: **feature `casca-visual-rotas`** (remedia lacuna da 2B — rotas sem CSS; leitor abria espremido). `src/ui/app-shell.css` novo + afordância de volume vazio no ReaderRoute; validado no navegador (PASS), 318 testes. Commits `6563f66`/`ec6a9fe`.
+- **Decisão de roadmap `AD-030`**: entra uma **Fase 4 dedicada a Sistema de Design & UX** (antes do editor); o editor vira **Fase 5**, journal→6, scan→7, auth→8. Pasta do editor renomeada `fase-4-editor`→`fase-5-editor`. Roadmap e cabeçalho do editor atualizados.
 - **In-progress**: nada.
-- **Next step**: **Fase 4 (editor visual)** — `.specs/features/fase-4-editor/` (só `spec.md`; precisa de Design + Tasks). Depende da 3 (pronta). É o que fecha `AD-002` (conteúdo criado no app, não por arquivos).
+- **Next step**: **Fase 4 — Sistema de Design & UX** (`.specs/features/fase-4-design-sistema-ux/spec.md`, Specify pronta; precisa de **Design** — a direção visual concreta se define aí com o autor, via skill `frontend-blueprint`; depois Tasks + Execute). Verificação por preview + checklist `web-design-guidelines` + UAT (estética não é testável por vitest). Só então a **Fase 5 (editor)** é construída sobre o sistema.
 - **Gates diferidos da Fase 3** (não bloqueiam a 4, mas pendentes antes de "entregar o presente"): (1) validar gatilho `3/4` + gesto de swipe em **celular real** (`AD-029`); (2) rodar `npx playwright test` num ambiente com Chromium no CI. (3) SPEC_DEVIATION a apertar quando Auth entrar: upload autorizado por uuid-segredo (`AD-013`) em vez de `edit_token`, marcado em `schema.sql`.
 - **Ponto de atenção herdado**: app roda por `pickAdapter()` — com `.env` usa Supabase (precisa criar bucket/policy do `schema.sql` novo no projeto ao ir ao vivo com upload), sem env cai no Local com demo semeado. Cache de object URLs do LocalAdapter é em memória (some no reload) — só importa ao renderizar blobs locais após reload; hidratar em `getBook` fica deferido.
 - **Config de ambiente**: `.env` local (gitignored) com URL + Publishable key do projeto `ahaortvxhhhvmxtdbsta`; `schema.sql` da 2A já aplicado — **a adição de upload/policy da Fase 3 ainda precisa ser aplicada no projeto** antes do upload ao vivo.

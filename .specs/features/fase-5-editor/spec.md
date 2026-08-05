@@ -1,8 +1,8 @@
-# Fase 4 — Editor visual
+# Fase 5 — Editor visual
 
 **Escopo**: Complex
 **Status**: Draft
-**Pré-requisito**: Fase 3 concluída
+**Pré-requisito**: Fase 4 (Sistema de Design & UX) concluída — o editor é construído sobre o sistema de design, não antes dele (`AD-030`)
 
 ## Problem Statement
 

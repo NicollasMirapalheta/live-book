@@ -131,11 +131,43 @@ montadas ≤ 10; e em 390×844 a página é legível **e a virada funciona**.
 
 ---
 
-## Fase 4 — Editor visual — marco do presente
+## Fase 4 — Sistema de Design & UX — **fase dedicada** (`AD-030`)
 
-📄 [spec](../.specs/features/fase-4-editor/spec.md)
+📄 [spec](../.specs/features/fase-4-design-sistema-ux/spec.md)
 
-**Objetivo:** montar o álbum pela interface, sem tocar em código.
+**Objetivo:** o produto deixa de "só funcionar" e passa a ter UI e UX de qualidade, sob um
+sistema de design documentado e aplicado em todas as telas. Vem **antes** do editor de
+propósito: a Fase 5 é construída sobre este sistema, não acumulando dívida para repolir
+depois. Corrige a lacuna que ficou explícita ao abrir o app na web (leitor espremido,
+telas cruas — remediada em parte por `casca-visual-rotas`, agora formalizada num sistema).
+
+| Entrega | Onde |
+|---|---|
+| Linguagem visual documentada (identidade, tipografia, cor, espaçamento, elevação, movimento) | `docs/design/design-system.md`, tokens `--lb-*`/`--app-*` |
+| Biblioteca de componentes/estilos de produto (botões, campos, cartões, painéis, banners, navegação) | `src/ui/` |
+| Estados desenhados em todo fluxo (vazio, carregando, erro, sucesso, conflito) | rotas + `src/ui/` |
+| Aplicação coerente em estante, leitor, side menu, criar/importar/compartilhar, not-found | `src/ui/`, `src/routes/` |
+| Qualidade visual da surface `album` (tema, layouts, molduras como um livro de fotos de verdade) | `src/book/surfaces/album/` |
+| Movimento e micro-interações (hover, foco, transições) respeitando `AD-005`/reduced-motion e a performance | `src/ui/`, CSS |
+| Responsivo mobile→desktop (amarra com o modo retrato, `AD-029`) e polimento de a11y (`AD-019`) | CSS, componentes |
+
+**Restrições:** estende o `AD-015` (não o substitui); não toca o motor (`AD-022`) — só props
+aditivas e CSS vars na borda; a virada sempre anima; sem modo escuro (fora de escopo);
+performance é requisito (nada de efeito que derrube FPS na máquina fraca).
+
+**Pronto quando:** existe um design-system.md que é fonte única; toda tela existente reflete
+o sistema e passa num checklist de design (web-design-guidelines) + UAT do autor; todo fluxo
+tem estados vazio/carregando/erro desenhados; contraste, foco e alvos de 44px verificados; e
+o orçamento de FPS da Fase 3 continua verde.
+
+---
+
+## Fase 5 — Editor visual — marco do presente
+
+📄 [spec](../.specs/features/fase-5-editor/spec.md)
+
+**Objetivo:** montar o álbum pela interface, sem tocar em código — sobre o sistema de design
+da Fase 4.
 
 | Entrega | Onde |
 |---|---|
@@ -153,7 +185,7 @@ undo/redo restaura exatamente.
 
 ---
 
-## Fase 5 — Surface `journal`
+## Fase 6 — Surface `journal`
 
 Diário: cabeçalho de entrada, pauta suave, escrita direta na página aberta. Reusa o
 `EditorShell` com o trilho colapsado.
@@ -164,7 +196,7 @@ durante virada.
 
 ---
 
-## Fase 6 — Surface `scan` e ingestor `pdf`
+## Fase 7 — Surface `scan` e ingestor `pdf`
 
 Rasteriza cada página do PDF ([ADR-005](adr/005-orcamento-de-imagem-e-janela-de-virtualizacao.md),
 `AD-021`); `getOutline()` alimenta `chapter`, então o sumário do motor funciona de graça.
@@ -175,7 +207,7 @@ Capa substituível pelo mesmo editor de capa, porque capa é `CoverSpec` de bloc
 
 ---
 
-## Fase 7 — Auth, multiusuário e billing — **não construir**
+## Fase 8 — Auth, multiusuário e billing — **não construir**
 
 Registrada para deixar o dia D explícito: ligar Supabase Auth, chamar `claim_book` no
 primeiro login, trocar duas policies de storage, adicionar `profiles.plan`.
