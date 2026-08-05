@@ -4,3 +4,43 @@
    partir de album.theme). Nenhuma cor nova aqui: trocar o tema troca o album.
    Blocos de layout (T12/T13) e molduras (T14) preenchem este arquivo.
    ========================================================================= */
+
+/* --------------------------------------------------------------- foto (T12) */
+
+.bk-album-photo {
+  margin: 0 0 12px;
+}
+.bk-album-photo__frame {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--lb-radius);
+  background-color: var(--lb-paper-2);
+  background-size: cover;
+  background-position: center;
+}
+.bk-album-photo__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+.bk-album-photo__caption {
+  margin-top: 6px;
+  color: var(--lb-ink-faint);
+  font-size: 12px;
+}
+
+/* full-bleed: a foto ocupa a folha inteira e sangra ate a borda; sem cantos
+   arredondados. A numeracao some pela page.hideNumber do layout. */
+.bk-album-photo--full {
+  margin: 0;
+  height: 100%;
+}
+.bk-album-photo--full .bk-album-photo__frame {
+  height: 100%;
+  border-radius: 0;
+}
+.bk-album-photo--full .bk-album-photo__img {
+  height: 100%;
+  object-fit: cover;
+}

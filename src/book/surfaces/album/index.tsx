@@ -12,11 +12,14 @@
  * Layouts e blocos exclusivos entram em T12/T13/T14; aqui fica so o esqueleto.
  */
 import { registerSurface, type SurfaceDef } from "../registry";
+import { albumBlocks } from "./blocks";
+import { albumLayouts } from "./layouts";
 import "./album.css";
 
 export const album: SurfaceDef = {
   id: "album",
   label: "Álbum",
+  blocks: albumBlocks,
   theme: {
     bg: "#e8e4de",
     bgDeep: "#d8d2c8",
@@ -30,8 +33,7 @@ export const album: SurfaceDef = {
     radius: "10px",
   },
   chrome: { margin: "tight" },
-  // Layouts entram em T12 (full-bleed/single/text) e T13 (duo/grid/photo-text).
-  layouts: [],
+  layouts: albumLayouts,
   // Foto queima VRAM: raio 2 mantem <=10 faces montadas (AD-014).
   defaultWindowRadius: 2,
 };
