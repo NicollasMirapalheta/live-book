@@ -26,7 +26,7 @@
      separada — entao gradiente, imagem, o que for, vale, porque e uma caixa so.
      Troque esta variavel (ou o background da .lb-page--cover) para redecorar a
      capa inteira de uma vez. */
-  --lb-cover: linear-gradient(158deg, #8f68e6 0%, #6a44bd 48%, #472a83 100%);
+  --lb-cover: linear-gradient(158deg, #9a6534 0%, #6e4826 48%, #46290f 100%);
   /* A PLACA da capa dura vista pela borda/sobra (o "square"). Um tom mais fundo
      que a capa: e a mesma casca, so que na quina, na sombra da propria espessura.
      E o que aparece emoldurando as paginas quando o livro esta aberto.
@@ -35,7 +35,7 @@
      chegaria em pontos diferentes em cada metade e a cor "pularia" na emenda; um
      vertical depende so da altura — igual dos dois lados — e ainda ignora o
      espelhamento horizontal da face interna da capa. Emenda invisivel. */
-  --lb-board: linear-gradient(180deg, #6f4fc0 0%, #4f2f96 52%, #33206a 100%);
+  --lb-board: linear-gradient(180deg, #5f3f22 0%, #45290f 52%, #2c1a0a 100%);
   /* quanto a capa ultrapassa as paginas (a "sobra"/square do hardcover). 0 =
      capa rente as paginas. Sincronizado com BOARD_SQUARE via style inline —
      este valor e so o fallback. */
@@ -54,11 +54,14 @@
   overflow: hidden;
   color: var(--lb-ink);
   font-family: var(--lb-font);
+  /* A "mesa": madeira quente com um poço de luz de abajur no alto, vinheta suave nas
+     bordas e um grão fino. Só background (não-geometria), reskin do AD-032. A base da
+     madeira vem dos tokens --lb-bg/--lb-bg-deep do tema da surface. */
   background:
-    radial-gradient(100% 78% at 14% -8%, #fcf9f2 0%, rgba(252, 249, 242, 0) 50%),
-    radial-gradient(78% 70% at 96% 6%, rgba(231, 222, 255, 0.72) 0%, rgba(231, 222, 255, 0) 56%),
-    radial-gradient(120% 95% at 50% 118%, rgba(79, 61, 120, 0.11) 0%, rgba(79, 61, 120, 0) 52%),
-    linear-gradient(168deg, var(--lb-bg) 0%, var(--lb-bg-deep) 100%);
+    radial-gradient(48% 44% at 50% 15%, rgba(255, 216, 152, 0.42) 0%, rgba(255, 198, 122, 0.1) 45%, rgba(255, 198, 122, 0) 66%),
+    radial-gradient(124% 118% at 50% 42%, rgba(22, 11, 4, 0) 50%, rgba(22, 11, 4, 0.46) 100%),
+    repeating-linear-gradient(91deg, rgba(28, 15, 6, 0.05) 0 1px, rgba(28, 15, 6, 0) 1px 8px),
+    linear-gradient(178deg, var(--lb-bg) 0%, var(--lb-bg-deep) 100%);
 }
 
 .lb-root *,

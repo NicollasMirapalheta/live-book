@@ -86,8 +86,9 @@ describe("demo como documento — integracao", () => {
   it("o App aplica o tema da surface como custom properties no root, sem vencer --lb-cover-square (DOC-08)", () => {
     const { container } = render(<App />);
     const root = container.querySelector(".lb-root") as HTMLElement;
-    expect(root.style.getPropertyValue("--lb-accent")).toBe("#7a55d1");
-    expect(root.style.getPropertyValue("--lb-paper")).toBe("#fdfbf6");
+    expect(root.style.getPropertyValue("--lb-accent")).toBe("#b5622a");
+    expect(root.style.getPropertyValue("--lb-paper")).toBe("#faf3e2");
+    // o invariante que importa: o tema NÃO vence --lb-cover-square (mantém 26px)
     expect(root.style.getPropertyValue("--lb-cover-square")).toBe("26px");
   });
 });

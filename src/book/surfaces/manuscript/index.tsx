@@ -12,16 +12,20 @@ export const manuscript: SurfaceDef = {
   id: "manuscript",
   label: "Manuscrito",
   // sem `blocks`: manuscript usa apenas o nucleo
+  // Tema amadeirado (AD-031): a mesa é madeira quente (bg), o papel é a coisa clara,
+  // acento brasa. O fundo do palco (abajur/vinheta/grão) mora em live-book.css e usa
+  // estes bg/bg-deep como base da madeira.
   theme: {
-    bg: "#efe9dd",
-    bgDeep: "#e3dccc",
-    paper: "#fdfbf6",
-    paper2: "#f7f1e6",
-    ink: "#3a3247",
-    inkSoft: "#6f6684",
-    accent: "#7a55d1",
-    accent2: "#a98bf0",
-    tint: "#efe8ff",
+    bg: "#6e4826",
+    bgDeep: "#3a2413",
+    paper: "#faf3e2",
+    paper2: "#f1e2c6",
+    ink: "#2a1e14",
+    inkSoft: "#6e5a45",
+    accent: "#b5622a",
+    accent2: "#c9824a",
+    tint: "#efe0cd",
+    cover: "linear-gradient(158deg, #9a6534 0%, #6e4826 52%, #46290f 100%)",
     radius: "20px",
   },
   layouts: [

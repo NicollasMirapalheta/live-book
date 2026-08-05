@@ -11,11 +11,11 @@ describe("surface manuscript", () => {
     expect(manuscript.defaultWindowRadius).toBe(4);
   });
 
-  it("o theme traduz para custom properties --lb-*", () => {
+  it("o theme traduz para custom properties --lb-* (tema amadeirado, AD-031)", () => {
     const vars = themeToVars(manuscript.theme);
-    expect(vars["--lb-accent"]).toBe("#7a55d1");
-    expect(vars["--lb-paper"]).toBe("#fdfbf6");
-    expect(vars["--lb-bg"]).toBe("#efe9dd");
+    expect(vars["--lb-accent"]).toBe("#b5622a");
+    expect(vars["--lb-paper"]).toBe("#faf3e2");
+    expect(vars["--lb-bg"]).toBe("#6e4826");
   });
 
   it("nao tem bloco exclusivo — usa so o nucleo (8 blocos)", () => {
