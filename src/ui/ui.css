@@ -87,15 +87,14 @@
 
 /* -------------------------------------------------------------- prateleira */
 
-/* Ancorada mais embaixo e grande: sensação de estar EM FRENTE à estante (perto),
-   não de olhá-la de longe no meio da sala. */
+/* Grande e CENTRALIZADA na sala: presente, mas no centro da tela (não colada embaixo). */
 .app-shelf__stage {
   flex: 1;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   min-height: 0;
-  padding: 0 0 clamp(48px, 11vh, 104px);
+  padding: clamp(16px, 4vw, 40px) 0;
   overflow-x: auto;
 }
 
