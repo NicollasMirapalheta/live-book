@@ -12,9 +12,12 @@ review, Verifier, discrimination sensor).
 ---
 
 **Design**: `.specs/features/fase-3-imagens-retrato/design.md`
-**Status**: In Progress — ✅ Batch 1 (Fase 1+2, T1–T8) done: 272 testes verdes, build verde. ✅ Batch 2 (Fase 3+4, T9–T14) done: 303 testes verdes, build verde. ⏳ Batch 3 (Fase 5+6, T15–T19) pendente.
+**Status**: **Done** — T1–T19 executadas (3 batches) + fix `9db36bc`. Verifier: **PASS** (11/11 ACs, sensor 7/7, gate 316 verdes). Relatório em `validation.md`.
 
-> Batch 1 SPEC_DEVIATION: upload autorizado por uuid-segredo (AD-013) em vez de edit_token (sem infra de login), marcado em `schema.sql`. Deferido: hidratar cache de object URLs do LocalAdapter em `getBook` — relevante para T10 (ImportRoute renderiza blobs locais após reload).
+> Batch 1 SPEC_DEVIATION: upload autorizado por uuid-segredo (AD-013) em vez de edit_token (sem infra de login), marcado em `schema.sql` — apertar quando Auth entrar.
+> Bug pego no e2e real e corrigido (`9db36bc`): lqip precisava ser computado antes de transferir o bitmap ao worker (detach). Lição registrada.
+> Gates diferidos (AD-029): validar gatilho `3/4` + gesto de swipe em celular real; rodar `npx playwright test` em ambiente com Chromium.
+> Deferido: hidratar cache de object URLs do LocalAdapter em `getBook` (só importa ao renderizar blobs locais após reload).
 
 ---
 

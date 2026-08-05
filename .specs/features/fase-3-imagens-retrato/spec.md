@@ -155,17 +155,17 @@ as páginas virarem, porque a virada é o que torna esse presente diferente de u
 
 | ID | Story | Fase | Status |
 |---|---|---|---|
-| MEDIA-01 | Pipeline — variantes e EXIF | — | Pending |
-| MEDIA-02 | Pipeline — worker e fallback | — | Pending |
-| MEDIA-03 | Pipeline — limites e recusa de formato | — | Pending |
-| MEDIA-04 | Render — memória e faces montadas | — | Pending |
-| MEDIA-05 | Render — LQIP, reserva de caixa e prefetch | — | Pending |
+| MEDIA-01 | Pipeline — variantes e EXIF | 1 (T2/T3/T4) | Done |
+| MEDIA-02 | Pipeline — worker e fallback | 1 (T4) | Done |
+| MEDIA-03 | Pipeline — limites e recusa de formato | 1+2 (T1/T5/T6/T7) | Done |
+| MEDIA-04 | Render — memória e faces montadas | 4 (T11) + e2e (T19) | Done |
+| MEDIA-05 | Render — LQIP, reserva de caixa e prefetch | núcleo `Image` (exercitado T12/T13) | Done |
 | MEDIA-06 | Surface `album` — tema e layouts | 4 | Done |
 | MEDIA-07 | Surface `album` — molduras | 4 | Done |
-| MEDIA-08 | Retrato — legibilidade | — | Pending |
-| MEDIA-09 | Retrato — virada preservada e gesto | — | Pending |
-| MEDIA-10 | Retrato — sem regressão em desktop | — | Pending |
-| MEDIA-11 | Verificação automatizada de performance | — | Pending |
+| MEDIA-08 | Retrato — legibilidade | 5 (T15/T16) | Done |
+| MEDIA-09 | Retrato — virada preservada e gesto | 5 (T16/T17) | Done |
+| MEDIA-10 | Retrato — sem regressão em desktop | 5 (T15/T17) | Done |
+| MEDIA-11 | Verificação automatizada de performance | 6 (T18/T19) | Done |
 
 ---
 
