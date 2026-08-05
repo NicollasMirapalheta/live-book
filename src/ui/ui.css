@@ -87,13 +87,15 @@
 
 /* -------------------------------------------------------------- prateleira */
 
+/* Ancorada mais embaixo e grande: sensação de estar EM FRENTE à estante (perto),
+   não de olhá-la de longe no meio da sala. */
 .app-shelf__stage {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   min-height: 0;
-  padding: clamp(16px, 4vw, 40px) 0;
+  padding: 0 0 clamp(48px, 11vh, 104px);
   overflow-x: auto;
 }
 
@@ -108,10 +110,10 @@
   z-index: 1;
   list-style: none;
   margin: 0;
-  padding: 0 clamp(16px, 3vw, 34px);
+  padding: 0 clamp(20px, 3vw, 40px);
   display: inline-flex;
   align-items: flex-end;
-  gap: 7px;
+  gap: 10px;
 }
 
 /* a prateleira de madeira, cobre a largura do móvel */
@@ -119,11 +121,11 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -12px;
-  height: 15px;
-  border-radius: 3px;
+  bottom: -18px;
+  height: 22px;
+  border-radius: 4px;
   background: linear-gradient(180deg, #7a4f2b, var(--app-madeira-fundo));
-  box-shadow: 0 14px 22px -6px rgba(0, 0, 0, .6), var(--app-inner-lite);
+  box-shadow: 0 18px 30px -8px rgba(0, 0, 0, .62), var(--app-inner-lite);
 }
 
 .app-shelf__plank::after {
@@ -147,42 +149,63 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  width: 46px;
-  border-radius: 2px 2px 1px 1px;
-  padding-top: 14px;
+  width: 64px;
+  border-radius: 3px 3px 1px 1px;
+  padding-top: 20px;
   text-decoration: none;
-  box-shadow: inset -4px 0 6px rgba(0, 0, 0, .3), inset 3px 0 3px rgba(255, 255, 255, .1);
+  box-shadow: inset -6px 0 9px rgba(0, 0, 0, .32), inset 4px 0 4px rgba(255, 255, 255, .1);
   transition: transform var(--app-dur) var(--app-ease), box-shadow var(--app-dur) var(--app-ease);
 }
 
 .app-shelf__spine:hover,
 .app-shelf__spine:focus-visible {
-  transform: translateY(-14px);
-  box-shadow: var(--app-shadow-lift), inset -4px 0 6px rgba(0, 0, 0, .32);
+  transform: translateY(-18px);
+  box-shadow: var(--app-shadow-lift), inset -6px 0 9px rgba(0, 0, 0, .34);
 }
 
 .app-shelf__spine-title {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   font-family: var(--app-display);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
-  color: rgba(255, 244, 224, .94);
+  color: rgba(255, 244, 224, .95);
   text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
-  max-height: 82%;
+  max-height: 84%;
   overflow: hidden;
   white-space: nowrap;
 }
 
-/* metadado só para leitor de tela (o balão visível vem em T5) */
-.app-shelf__spine-meta {
+/* balão de papel ao mirar/focar (T5) */
+.app-shelf__tip {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%) translateY(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--app-papel);
+  color: var(--app-tinta);
+  box-shadow: var(--app-shadow-2);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--app-dur) var(--app-ease), transform var(--app-dur) var(--app-ease);
 }
+
+.app-shelf__spine:hover .app-shelf__tip,
+.app-shelf__spine:focus-visible .app-shelf__tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.app-shelf__tip-title { font-family: var(--app-display); font-weight: 600; font-size: 14px; }
+.app-shelf__tip-meta { font-size: 12px; color: var(--app-tinta-suave); }
 
 /* -------------------------------------------------------------- slot "+" */
 
@@ -192,12 +215,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 118px;
+  width: 64px;
+  height: 236px;
   border: 1.5px dashed color-mix(in srgb, var(--app-creme) 34%, transparent);
   border-radius: 4px;
   color: color-mix(in srgb, var(--app-creme) 62%, transparent);
-  font-size: 26px;
+  font-size: 32px;
   text-decoration: none;
   transition: border-color var(--app-dur-fast) var(--app-ease), background var(--app-dur-fast) var(--app-ease), color var(--app-dur-fast) var(--app-ease);
 }
@@ -225,6 +248,7 @@
 @media (prefers-reduced-motion: reduce) {
   .app-shelf__spine,
   .app-shelf__slot { transition: none; }
+  .app-shelf__tip { transition: opacity var(--app-dur) ease; }
 }
 
 /* ------------------------------------------------------------ side menu */

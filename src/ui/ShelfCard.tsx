@@ -13,11 +13,12 @@ import type { BookSummary } from "../data/StorageAdapter";
  * tela e exibido no balão de T5).
  */
 
-/** Altura da lombada em px, deterministica a partir do id (156..211). */
+/** Altura da lombada em px, deterministica a partir do id (250..345). Lombadas
+ * grandes: a estante fica PERTO, presente — não um objeto distante na sala. */
 function spineHeight(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return 156 + (h % 56);
+  return 250 + (h % 96);
 }
 
 export function ShelfCard({ book }: { book: BookSummary }) {
@@ -39,7 +40,11 @@ export function ShelfCard({ book }: { book: BookSummary }) {
         aria-label={`${book.title} — ${pages}`}
       >
         <span className="app-shelf__spine-title">{book.title}</span>
-        <span className="app-shelf__spine-meta">{pages}</span>
+        {/* balão de papel ao mirar/focar (T5); o nome acessível já vem do aria-label */}
+        <span className="app-shelf__tip" aria-hidden="true">
+          <span className="app-shelf__tip-title">{book.title}</span>
+          <span className="app-shelf__tip-meta">{pages}</span>
+        </span>
       </Link>
     </li>
   );
