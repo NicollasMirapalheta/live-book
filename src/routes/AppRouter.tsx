@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { ImportRoute } from "./ImportRoute";
 import { NotFoundRoute } from "./NotFoundRoute";
 import { NewBookRoute } from "./NewBookRoute";
 import { ReaderRoute } from "./ReaderRoute";
@@ -16,6 +17,7 @@ export function AppRouter() {
       <Route path="/" element={<ShelfRoute />} />
       <Route path="/new" element={<NewBookRoute />} />
       <Route path="/b/:id" element={<ReaderRoute />} />
+      <Route path="/b/:id/import" element={<ImportRoute />} />
       <Route path="/b/:id/p/:page" element={<ReaderRoute />} />
       <Route path="/b/:id/c/:slug" element={<ReaderRoute />} />
       <Route path="/s/:token" element={<ShareRoute />} />
