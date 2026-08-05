@@ -1,0 +1,6 @@
+/* =========================================================================
+   Surface `album` (prefixo bk-album-).
+   Consome SO as custom properties --lb-* do tema (definidas por themeToVars a
+   partir de album.theme). Nenhuma cor nova aqui: trocar o tema troca o album.
+   Blocos de layout (T12/T13) e molduras (T14) preenchem este arquivo.
+   ========================================================================= */
