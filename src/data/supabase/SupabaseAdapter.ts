@@ -13,7 +13,8 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { MAX_DOC_BYTES, MAX_PAGES } from "../../config/limits";
-import type { AssetRef, BookDoc } from "../../book/schema";
+import type { AssetRef, AssetSize, BookDoc } from "../../book/schema";
+import type { ProcessedImage } from "../../media/pipeline";
 import { getEditToken, setEditToken, clearEditToken } from "../editTokens";
 import {
   NotFoundError,
@@ -182,15 +183,61 @@ export class SupabaseAdapter implements StorageAdapter {
     return { rev: data as number };
   }
 
-  async gcAssets(id: string): Promise<void> {
-    // Na 2A não há bucket de blob (uploads são Fase 3): coletar órfãos é no-op.
-    // O contrato exige que os assets do doc atual sobrevivam — trivial aqui, pois
-    // nada é removido. Confirma só que o volume existe (via view pública).
-    const book = await this.getBook(id);
-    if (!book) throw new NotFoundError();
+  async uploadAsset(bookId: string, img: ProcessedImage): Promise<AssetRef> {
+    // O id do asset carrega o prefixo do volume: `{bookId}/{uuid}`. Assim o path do
+    // bucket fica escopado por volume (policy/gc por prefixo) e `assetUrl(ref, size)`
+    // — que so tem `ref` — consegue montar a URL sozinha (AD-028, invariante 5).
+    const refId = `${bookId}/${crypto.randomUUID()}`;
+    const bucket = this.client.storage.from("book-assets");
+
+    const page = await bucket.upload(`${refId}/page.webp`, img.page, {
+      contentType: "image/webp",
+      upsert: false,
+    });
+    if (page.error) raiseMapped(page.error);
+
+    const thumb = await bucket.upload(`${refId}/thumb.webp`, img.thumb, {
+      contentType: "image/webp",
+      upsert: false,
+    });
+    if (thumb.error) raiseMapped(thumb.error);
+
+    return { id: refId, w: img.w, h: img.h, lqip: img.lqip };
   }
 
-  assetUrl(ref: AssetRef): string {
-    return `${this.baseUrl}/storage/v1/object/public/book-assets/${ref.id}`;
+  async gcAssets(id: string): Promise<void> {
+    const book = await this.getBook(id);
+    if (!book) throw new NotFoundError();
+    const token = requireToken(id);
+
+    // Conjunto referenciado = doc atual + toda revisão retida, computado no servidor
+    // (RPC espelha `collectAssetIds`): preservar o que uma versão restaurável cita
+    // (AD-025) exige ler os docs das revisões, que só o SQL alcança.
+    const { data: refData, error: refError } = await this.client.rpc(
+      "book_referenced_asset_ids",
+      { p_book_id: id, p_edit_token: token },
+    );
+    if (refError) raiseMapped(refError);
+    const referenced = new Set((refData ?? []) as string[]);
+
+    const bucket = this.client.storage.from("book-assets");
+    const { data: entries, error: listError } = await bucket.list(id);
+    if (listError) raiseMapped(listError);
+
+    const orphanPaths: string[] = [];
+    for (const entry of entries ?? []) {
+      const refId = `${id}/${entry.name}`;
+      if (!referenced.has(refId)) {
+        orphanPaths.push(`${refId}/page.webp`, `${refId}/thumb.webp`);
+      }
+    }
+    if (orphanPaths.length > 0) {
+      const { error: removeError } = await bucket.remove(orphanPaths);
+      if (removeError) raiseMapped(removeError);
+    }
+  }
+
+  assetUrl(ref: AssetRef, size: AssetSize = "page"): string {
+    return `${this.baseUrl}/storage/v1/object/public/book-assets/${ref.id}/${size}.webp`;
   }
 }

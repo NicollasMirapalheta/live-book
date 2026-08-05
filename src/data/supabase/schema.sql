@@ -252,6 +252,35 @@ begin
 end;
 $$;
 
+-- book_referenced_asset_ids: uniao dos ids de asset citados pelo doc atual E por
+-- todas as revisoes retidas (AD-025/AD-028). Espelha `collectAssetIds` do cliente:
+-- o recursivo `$.**.asset.id` alcanca blocos de imagem e itens de galeria em capa,
+-- contracapa e paginas, em qualquer profundidade. `gcAssets` remove do bucket o que
+-- NAO esta neste conjunto — assim nenhuma imagem de versao restauravel e apagada.
+create or replace function public.book_referenced_asset_ids(p_book_id uuid, p_edit_token text)
+returns setof text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_token text;
+begin
+  select edit_token::text into v_token from public.books where id = p_book_id;
+  if not found then return; end if;
+  if v_token <> p_edit_token then raise exception 'forbidden'; end if;
+
+  return query
+    select q #>> '{}'
+    from public.books b, lateral jsonb_path_query(b.doc, 'lax $.**.asset.id') q
+    where b.id = p_book_id
+    union
+    select q #>> '{}'
+    from public.book_revisions r, lateral jsonb_path_query(r.doc, 'lax $.**.asset.id') q
+    where r.book_id = p_book_id;
+end;
+$$;
+
 -- Escrita só pelas RPCs; concedidas a anon (e authenticated, para quando Auth entrar).
 grant execute on function public.create_book(jsonb) to anon, authenticated;
 grant execute on function public.save_book(uuid, text, jsonb, int) to anon, authenticated;
@@ -259,3 +288,36 @@ grant execute on function public.restore_revision(uuid, text, uuid) to anon, aut
 grant execute on function public.list_revisions(uuid, text) to anon, authenticated;
 grant execute on function public.delete_book(uuid, text) to anon, authenticated;
 grant execute on function public.claim_book(uuid, text) to anon, authenticated;
+grant execute on function public.book_referenced_asset_ids(uuid, text) to anon, authenticated;
+
+-- --- Bucket de assets: upload por convencao de path + teto de 2 MB (AD-028) --------
+-- Bucket `book-assets` publico para LEITURA (AD-013): o segredo e o uuid do path.
+-- A ESCRITA anon segue o mesmo modelo de segredo-por-uuid — sem login, o edit_token
+-- nao chega a RLS de storage; a barreira efetiva e o path uuid impossivel de adivinhar
+-- (consistente com AD-013). O teto de 2 MB por objeto espelha MAX_ASSET_BYTES de
+-- src/config/limits.ts (2*1024*1024 = 2097152); ao mudar la, mude o literal aqui.
+-- SPEC_DEVIATION: AD-028 pedia autorizacao "por edit_token"; sem infra de login a RLS
+-- de storage nao consegue conferir o token, entao aplica-se o modelo uuid-como-segredo
+-- do AD-013. Quando Auth entrar, apertar para owner_id.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('book-assets', 'book-assets', true, 2097152,
+        array['image/webp', 'image/jpeg', 'image/png', 'image/avif'])
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "book-assets leitura publica" on storage.objects;
+create policy "book-assets leitura publica"
+  on storage.objects for select
+  using (bucket_id = 'book-assets');
+
+drop policy if exists "book-assets upload anon" on storage.objects;
+create policy "book-assets upload anon"
+  on storage.objects for insert
+  with check (bucket_id = 'book-assets');
+
+drop policy if exists "book-assets remove anon" on storage.objects;
+create policy "book-assets remove anon"
+  on storage.objects for delete
+  using (bucket_id = 'book-assets');
