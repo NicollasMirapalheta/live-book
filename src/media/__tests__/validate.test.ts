@@ -15,13 +15,16 @@ function bytes(head: number[], len = 16): ArrayBuffer {
   return b.buffer;
 }
 
+/** Bytes ASCII de uma string, sem depender de `Buffer` (tsconfig e browser-only). */
+const asc = (s: string): number[] => [...s].map((c) => c.charCodeAt(0));
+
 /** Caixa ISO-BMFF `ftyp` com a marca principal dada (ex.: "avif", "heic"). */
 function ftyp(brand: string): ArrayBuffer {
   const b = new Uint8Array(16);
   // bytes 0..4 = tamanho da caixa (irrelevante para o sniff); 4..8 = "ftyp"
   b.set([0x00, 0x00, 0x00, 0x18], 0);
-  b.set([...Buffer.from("ftyp")], 4);
-  b.set([...Buffer.from(brand)], 8);
+  b.set(asc("ftyp"), 4);
+  b.set(asc(brand), 8);
   return b.buffer;
 }
 
@@ -29,8 +32,8 @@ const JPEG = bytes([0xff, 0xd8, 0xff, 0xe0]);
 const PNG = bytes([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 function webp(): ArrayBuffer {
   const b = new Uint8Array(16);
-  b.set([...Buffer.from("RIFF")], 0);
-  b.set([...Buffer.from("WEBP")], 8);
+  b.set(asc("RIFF"), 0);
+  b.set(asc("WEBP"), 8);
   return b.buffer;
 }
 
