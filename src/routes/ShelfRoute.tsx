@@ -65,7 +65,7 @@ export function ShelfRoute() {
   return (
     <main className="app-shelf">
       <header className="app-shelf__header">
-        <h1>Estante</h1>
+        <h1>Minha biblioteca</h1>
         {atCap ? (
           <span
             className="app-shelf__create is-disabled"
@@ -86,7 +86,7 @@ export function ShelfRoute() {
           Você atingiu o limite de {MAX_BOOKS} volumes na estante.
         </p>
       ) : null}
-      <Shelf books={state.books} />
+      <Shelf books={state.books} showSlot={!atCap} />
     </main>
   );
 }

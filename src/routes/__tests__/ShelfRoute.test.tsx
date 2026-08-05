@@ -45,16 +45,14 @@ describe("estante (ShelfRoute)", () => {
     // link para o volume (href por id)
     expect(cardA).toHaveAttribute("href", `/b/${a.id}`);
 
-    // metadados: contagem de páginas
+    // metadados: contagem de páginas (na lombada, acessível a leitor de tela)
     expect(within(cardA).getByText(/3 páginas/i)).toBeInTheDocument();
 
-    // capa: gradiente da surface
-    const cover = cardA.querySelector(".app-shelf-card__cover") as HTMLElement;
-    expect(cover).toBeTruthy();
-    expect(cover.style.background).toContain("linear-gradient");
+    // lombada colorida pelo gradiente da surface (a própria lombada é o elemento)
+    expect((cardA as HTMLElement).style.background).toContain("linear-gradient");
 
-    // grade tem exatamente 2 cartões
-    expect(container.querySelectorAll(".app-shelf-card")).toHaveLength(2);
+    // a fileira tem exatamente 2 lombadas (o slot "+" não é lombada)
+    expect(container.querySelectorAll(".app-shelf__spine")).toHaveLength(2);
   });
 
   it("estado vazio mostra ação de criar (LIB-04 AC2)", async () => {
