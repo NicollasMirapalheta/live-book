@@ -8,6 +8,7 @@ import { seedDemoIfEmpty } from "./data/seed";
 import "./book/surfaces/manuscript"; // registra a surface manuscript (side-effect)
 import "./book/surfaces/album"; // registra a surface album (side-effect — MEDIA-06 AC5)
 import "./live-book/prose.css"; // tipografia lb-* usada pelo HTML dos blocos text
+import "./ui/tokens.css"; // tokens do sistema de design (Fase 4, AD-031) — antes de ui/app-shell
 import "./ui/ui.css"; // camada visual do produto (estante + side menu, AD-015)
 import "./ui/app-shell.css"; // casca visual das rotas (leitor/criar/importar + estados)
 import "./index.css";

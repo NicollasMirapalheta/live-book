@@ -1,0 +1,73 @@
+/* Tokens do sistema de design — Fase 4 (AD-031).
+ *
+ * Fonte única: docs/design/design-system.md. Mundo quente — "biblioteca amadeirada":
+ * a sala é madeira em penumbra, o papel é a superfície clara e iluminada. Dois acentos:
+ * --app-brasa (terracota, chama à ação) e --app-salvia (verde, interativo calmo).
+ *
+ * Estes tokens NÃO substituem os `--app-*` legados de ui.css ainda em uso; a migração
+ * de cada tela para cá acontece nas tarefas de aplicação (T4/T10/T11). Importar ANTES
+ * de ui.css/app-shell.css para que a cascata os enxergue.
+ *
+ * Regra de escopo (design-system.md): `--app-*` no :root (produto); `--lb-*` só dentro
+ * de .lb-root (motor). `--app-*` espelha `--lb-*`, não importa. */
+
+:root {
+  /* a sala — madeira em penumbra (cromo da home e do leitor) */
+  --app-sala:          #241610;
+  --app-sala-2:        #3a2617;
+  --app-madeira:       #8a5a2f;
+  --app-madeira-clara: #c79a63;
+  --app-madeira-fundo: #5f3c20;
+
+  /* o papel — a página iluminada (cartão, painel, folha) */
+  --app-papel:         #faf3e2;
+  --app-papel-2:       #f1e2c6;
+  --app-papel-borda:   #e2cfa8;
+
+  /* tinta sobre papel */
+  --app-tinta:         #2a1e14;
+  --app-tinta-suave:   #6e5a45;
+  --app-tinta-fraca:   #a08a6e; /* placeholder/desabilitado — NUNCA conteúdo */
+
+  /* texto sobre madeira (a sala escura) */
+  --app-creme:         #f6ead2;
+  --app-creme-suave:   #cbb393;
+
+  /* acentos */
+  --app-brasa:         #b5622a;
+  --app-brasa-clara:   #c9824a;
+  --app-salvia:        #5f7f4c;
+  --app-salvia-clara:  #7fa06a;
+  --app-ambar:         #e0a24e;
+  --app-ambar-glow:    #ffcf88;
+
+  /* semânticos (fora dos acentos) */
+  --app-ok:            #5f7f4c;
+  --app-aviso:         #c98a2e;
+  --app-erro:          #a8402a;
+
+  /* fontes (já carregadas — AD-015) */
+  --app-font:    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --app-display: "Fraunces", Georgia, "Times New Roman", serif;
+
+  /* espaço (base 4) */
+  --app-s1: 4px;  --app-s2: 8px;  --app-s3: 12px; --app-s4: 16px;
+  --app-s5: 24px; --app-s6: 32px; --app-s7: 48px; --app-s8: 72px;
+
+  /* raio */
+  --app-radius-s: 8px;
+  --app-radius:   12px;
+  --app-radius-l: 20px;
+  --app-pill:     999px;
+
+  /* sombra — quente e difusa; profundidade na sala escura */
+  --app-shadow-1:    0 2px 6px rgba(20, 10, 2, .28);
+  --app-shadow-2:    0 14px 34px -12px rgba(16, 8, 2, .55);
+  --app-shadow-lift: 0 22px 40px -14px rgba(12, 6, 1, .6);
+  --app-inner-lite:  inset 0 1px 0 rgba(255, 220, 170, .2);
+
+  /* movimento (a virada usa o timing do motor — não entra aqui) */
+  --app-dur-fast: 140ms;
+  --app-dur:      240ms;
+  --app-ease:     cubic-bezier(.2, .8, .2, 1);
+}
