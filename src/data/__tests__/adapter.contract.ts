@@ -17,7 +17,8 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { MAX_PAGES, MAX_DOC_BYTES, REVISION_CAP } from "../../config/limits";
 import { createEmptyDoc, createPage, createBlock } from "../../book/factory";
 import { demoDoc } from "../../demo/demoDoc";
-import type { Block, BookDoc } from "../../book/schema";
+import type { AssetRef, AssetSize, Block, BookDoc } from "../../book/schema";
+import type { ProcessedImage } from "../../media/pipeline";
 import {
   RevConflictError,
   TooLargeError,
@@ -49,6 +50,26 @@ function richDocWithUnknownBlock(): BookDoc {
     ],
   });
   return base;
+}
+
+/** `ProcessedImage` fake para os casos de upload — blobs pequenos e distinguiveis
+ * por tamanho, `w`/`h`/`lqip` conhecidos, para asserir o que o `AssetRef` carrega. */
+export function fakeProcessedImage(): ProcessedImage {
+  return {
+    page: new Blob([new Uint8Array(1200)], { type: "image/webp" }),
+    thumb: new Blob([new Uint8Array(300)], { type: "image/webp" }),
+    lqip: "data:image/webp;base64,LQIP",
+    w: 1100,
+    h: 825,
+  };
+}
+
+/** Doc de uma pagina cuja unica imagem referencia `asset`. */
+function docWithImage(asset: AssetRef): BookDoc {
+  return createEmptyDoc({
+    title: "com imagem",
+    pages: [createPage({ blocks: [createBlock("image", { asset })] })],
+  });
 }
 
 function docWithTooManyPages(): BookDoc {
@@ -201,6 +222,78 @@ export function runAdapterContract(name: string, make: () => Promise<StorageAdap
       const loaded = await adapter.getBook(id);
       expect(loaded!.rev).toBe(rev);
       expect(loaded!.doc).toEqual(original);
+    });
+  });
+}
+
+/**
+ * Bloco de contrato de UPLOAD (AD-028), rodado contra cada adapter GRAVAVEL. Alem do
+ * `adapter`, o `setup` fornece `assetStored` — uma sonda que inspeciona o backing
+ * store — para que a COLETA de orfaos por `gcAssets` seja observavel de forma
+ * agnostica ao backend (IndexedDB no local, bucket no supabase). Derivado dos AC de
+ * MEDIA-03/AD-028: round-trip por size, id novo por envio, gc preserva revisao.
+ */
+export function runUploadContract(
+  name: string,
+  setup: () => Promise<{
+    adapter: StorageAdapter;
+    assetStored: (assetId: string, size: AssetSize) => Promise<boolean>;
+  }>,
+): void {
+  describe(`StorageAdapter (contrato de upload): ${name}`, () => {
+    it("uploadAsset devolve AssetRef com id novo e w/h/lqip do ProcessedImage", async () => {
+      const { adapter } = await setup();
+      const { id: bookId } = await adapter.createBook(smallDoc());
+      const img = fakeProcessedImage();
+      const ref = await adapter.uploadAsset(bookId, img);
+      expect(typeof ref.id).toBe("string");
+      expect(ref.id.length).toBeGreaterThan(0);
+      expect(ref.w).toBe(img.w);
+      expect(ref.h).toBe(img.h);
+      expect(ref.lqip).toBe(img.lqip);
+    });
+
+    it("assetUrl honra o size: page e thumb resolvem a URLs distintas (sincronas)", async () => {
+      const { adapter } = await setup();
+      const { id: bookId } = await adapter.createBook(smallDoc());
+      const ref = await adapter.uploadAsset(bookId, fakeProcessedImage());
+      const page = adapter.assetUrl(ref, "page");
+      const thumb = adapter.assetUrl(ref, "thumb");
+      expect(typeof page).toBe("string");
+      expect(page.length).toBeGreaterThan(0);
+      expect(typeof thumb).toBe("string");
+      expect(page).not.toBe(thumb);
+    });
+
+    it("reenviar o mesmo arquivo gera um id novo (idempotencia por identidade)", async () => {
+      const { adapter } = await setup();
+      const { id: bookId } = await adapter.createBook(smallDoc());
+      const img = fakeProcessedImage();
+      const a = await adapter.uploadAsset(bookId, img);
+      const b = await adapter.uploadAsset(bookId, img);
+      expect(a.id).not.toBe(b.id);
+    });
+
+    it("gcAssets coleta orfaos mas preserva o referenciado pelo doc atual E por revisao retida (AD-025/AD-028)", async () => {
+      const { adapter, assetStored } = await setup();
+      const { id, rev } = await adapter.createBook(smallDoc("sem imagens"));
+
+      const inRevision = await adapter.uploadAsset(id, fakeProcessedImage());
+      const inCurrent = await adapter.uploadAsset(id, fakeProcessedImage());
+      const orphan = await adapter.uploadAsset(id, fakeProcessedImage());
+
+      // v2 referencia `inRevision`; v3 referencia `inCurrent` (arquiva v2).
+      const r2 = await adapter.saveBook(id, docWithImage(inRevision), rev);
+      await adapter.saveBook(id, docWithImage(inCurrent), r2.rev);
+
+      await adapter.gcAssets(id);
+
+      // referenciado pelo doc atual: sobrevive
+      expect(await assetStored(inCurrent.id, "page")).toBe(true);
+      // referenciado so por uma revisao RETIDA: sobrevive (nao so o doc atual)
+      expect(await assetStored(inRevision.id, "page")).toBe(true);
+      // referenciado por ninguem: coletado
+      expect(await assetStored(orphan.id, "page")).toBe(false);
     });
   });
 }

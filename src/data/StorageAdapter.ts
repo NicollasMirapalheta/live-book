@@ -11,6 +11,7 @@
  */
 
 import type { AssetRef, AssetSize, BookDoc, SurfaceId } from "../book/schema";
+import type { ProcessedImage } from "../media/pipeline";
 
 export type AdapterName = "supabase" | "local" | "public";
 
@@ -68,9 +69,17 @@ export interface StorageAdapter {
   listRevisions(id: string): Promise<RevisionMeta[]>;
   /** escrita; restaura o doc da revisao e ISSO gera uma nova revisao. */
   restoreRevision(id: string, revisionId: string): Promise<SaveResult>;
-  /** escrita; coleta assets orfaos, preservando os referenciados pelo doc atual. */
+  /**
+   * escrita (AD-028); sobe as variantes `page`+`thumb` de UM asset processado e
+   * devolve o `AssetRef` (uuid novo por envio — idempotencia por identidade, nao por
+   * conteudo), com `w`/`h`/`lqip` embutidos. Somente-leitura lanca `WriteForbiddenError`.
+   */
+  uploadAsset(bookId: string, img: ProcessedImage): Promise<AssetRef>;
+  /** escrita; coleta assets orfaos, preservando os referenciados pelo doc atual E por
+   * qualquer revisao retida (AD-025/AD-028), nao so pelo doc atual. */
   gcAssets(id: string): Promise<void>;
-  /** SINCRONA (invariante 5) — devolve string. */
+  /** SINCRONA (invariante 5) — devolve string. Honra `size` pela convencao de path
+   * `.../{ref.id}/{size}` (AD-028): cada variante resolve a uma URL distinta. */
   assetUrl(ref: AssetRef, size?: AssetSize): string;
 }
 
