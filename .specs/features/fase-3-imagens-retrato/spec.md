@@ -1,7 +1,7 @@
 # Fase 3 — Imagens, surface `album` e modo retrato
 
 **Escopo**: Complex
-**Status**: Draft
+**Status**: Approved (Design aprovado 2026-08-05)
 **Pré-requisito**: Fases 2A e 2B concluídas
 
 ## Problem Statement
@@ -45,11 +45,13 @@ exercitável.
 | Processamento | worker no cliente | decodificar 12 MP na main thread trava a UI ~400 ms, 30× num drop de pasta | s |
 | `loading` das imagens | `eager`, nunca `lazy` | faces de verso ficam `visibility: hidden` em contexto `preserve-3d`; o heurístico do lazy é inconsistente e a foto chegaria durante a virada | s |
 | Original em alta | não guardado por padrão | cota gratuita de 1 GB | s |
-| Gatilho do modo retrato | `matchMedia("(max-aspect-ratio: 3/4)")` | separa celular em pé de tablet e desktop | **n** |
-| Navegação em retrato | swipe alterna lado do spread; no limite, vira a folha | mantém a virada como gesto principal | **n** |
+| Gatilho do modo retrato | `matchMedia("(max-aspect-ratio: 3/4)")` | separa celular em pé de tablet e desktop | s (validar em device) |
+| Navegação em retrato | swipe alterna lado do spread; no limite, vira a folha | mantém a virada como gesto principal | s (validar em device) |
 
-**Open questions:** o gatilho e o gesto do modo retrato precisam de protótipo em celular
-real antes de virar tarefa — nenhum dos dois é decidível no papel.
+**Open questions (resolvidas 2026-08-05):** o autor optou por adotar os defaults acima
+agora (`AD-029`) e diferir a validação em celular real para **gate de aceite no fim do
+Execute** — não bloqueia o início. O gatilho `3/4` e o gesto de swipe seguem como escolha
+provisória a confirmar num device físico antes do fechamento da fase.
 
 ---
 
@@ -158,8 +160,8 @@ as páginas virarem, porque a virada é o que torna esse presente diferente de u
 | MEDIA-03 | Pipeline — limites e recusa de formato | — | Pending |
 | MEDIA-04 | Render — memória e faces montadas | — | Pending |
 | MEDIA-05 | Render — LQIP, reserva de caixa e prefetch | — | Pending |
-| MEDIA-06 | Surface `album` — tema e layouts | — | Pending |
-| MEDIA-07 | Surface `album` — molduras | — | Pending |
+| MEDIA-06 | Surface `album` — tema e layouts | 4 | Done |
+| MEDIA-07 | Surface `album` — molduras | 4 | Done |
 | MEDIA-08 | Retrato — legibilidade | — | Pending |
 | MEDIA-09 | Retrato — virada preservada e gesto | — | Pending |
 | MEDIA-10 | Retrato — sem regressão em desktop | — | Pending |
