@@ -9,9 +9,15 @@
 import { createBlock, createPage } from "../../factory";
 import type { Block, BookPage } from "../../schema";
 import type { SurfaceLayout } from "../registry";
-import { albumPhoto } from "./blocks";
+import { albumDuo, albumPhoto } from "./blocks";
 
-export type AlbumLayoutId = "full-bleed" | "single" | "text";
+export type AlbumLayoutId =
+  | "full-bleed"
+  | "single"
+  | "text"
+  | "duo"
+  | "grid"
+  | "photo-text";
 
 /** asset vazio: preenchido pelo editor (Fase 4) ou pela rota de importacao. */
 const NO_ASSET = { id: "" };
@@ -25,6 +31,16 @@ export function seedFor(id: AlbumLayoutId): Block[] {
     case "text":
       // reusa o bloco de nucleo `text` (sanitizado no carregamento — AD-024/AD-026).
       return [createBlock("text", { html: "" })];
+    case "duo":
+      return [albumDuo([{ asset: NO_ASSET }, { asset: NO_ASSET }]) as unknown as Block];
+    case "grid":
+      // reusa o bloco de nucleo `gallery` como base da grade (design).
+      return [createBlock("gallery", { items: [], columns: 3 })];
+    case "photo-text":
+      return [
+        albumPhoto({ asset: NO_ASSET }) as unknown as Block,
+        createBlock("text", { html: "" }),
+      ];
   }
 }
 
@@ -35,9 +51,19 @@ const LABELS: Record<AlbumLayoutId, string> = {
   "full-bleed": "Foto sangrada",
   single: "Foto única",
   text: "Texto",
+  duo: "Par de fotos",
+  grid: "Grade",
+  "photo-text": "Foto e texto",
 };
 
-export const ALBUM_LAYOUT_IDS: AlbumLayoutId[] = ["full-bleed", "single", "text"];
+export const ALBUM_LAYOUT_IDS: AlbumLayoutId[] = [
+  "full-bleed",
+  "single",
+  "text",
+  "duo",
+  "grid",
+  "photo-text",
+];
 
 export const albumLayouts: SurfaceLayout[] = ALBUM_LAYOUT_IDS.map((id) => ({
   id,

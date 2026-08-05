@@ -44,3 +44,27 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* --------------------------------------------------------------- duo (T13) */
+
+/* Duas fotos lado a lado. `grid` (grade) reusa o bloco de nucleo `gallery`. */
+.bk-album-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.bk-album-duo__cell {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--lb-radius);
+  background-color: var(--lb-paper-2);
+  background-size: cover;
+  background-position: center;
+}
+.bk-album-duo__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
