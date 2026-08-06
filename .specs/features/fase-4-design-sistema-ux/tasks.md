@@ -12,7 +12,7 @@ não renderiza em jsdom. Só as fatias de lógica viram vitest.
 ---
 
 **Design**: `docs/design/design-system.md` (fonte única, `AD-031`) · **Spec**: `.specs/features/fase-4-design-sistema-ux/spec.md`
-**Status**: Draft
+**Status**: In Progress — ✅ T1 tokens · T2 componentes · T3 teto+gate · T4 estante-lombadas · T5 balão+aproximação · T6 estados+magia · T7 mesa amadeirada · T8 folha/lilás aquecido · T10 casca leitor (voltar) · T11 cascas de rota migradas. Também (feedback): cor das lombadas, 5 páginas em branco no volume novo, álbum amadeirado. **Restam T9** (polimento visual do álbum — precisa de fotos reais + UAT), **T12** (magia: já no home vazio/carregando via T6; reader-empty raro agora que volumes nascem com páginas), **T13** responsivo, **T14** contraste AA, **T15** não-regressão/FPS — os últimos dependem de **UAT no navegador** (não consigo screenshot headless). 322 testes verdes.
 
 ---
 
