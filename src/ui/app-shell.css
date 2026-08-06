@@ -1,25 +1,20 @@
-/* Casca visual das rotas (leitor, criar, importar) e seus estados — AD-015.
+/* Casca visual das rotas (leitor, criar, importar, compartilhar, erros) e seus
+ * estados — AD-031. Consome os tokens amadeirados (tokens.css). As telas de
+ * formulário são a sala quente (madeira em penumbra) com papel e acento brasa;
+ * o leitor recebe a pílula de voltar e a cadeia de altura do motor.
  *
- * Complementa `ui.css` (estante + side menu): reusa os mesmos tokens `--app-*` e a
- * linguagem editorial (fundo escuro, papel, Fraunces + Inter, pílulas de 44px, anel
- * de foco 3px). Sistema editorial, sem paleta nova.
- *
- * SHELL-01/02: a correção do motor espremido mora aqui. `.lb-root` é `height:100%`
- * e precisa de um ancestral com altura definida; a cadeia `html/body/#root` já é
- * `height:100%`, então basta `.app-reader { height: 100% }` para o motor voltar a
- * ocupar a viewport. Sem esta regra o `<main>` fica com altura automática e o palco
- * colapsa no piso de escala 0.25. */
+ * A cadeia de altura (`.app-reader { height:100% }`) é o que impede o motor de
+ * colapsar no piso de escala — #root(100%) -> .app-reader(100%) -> .lb-root(100%). */
 
 /* ---------------------------------------------------------------- leitor */
 
-/* A cadeia de altura: #root(100%) -> .app-reader(100%) -> .lb-root(100%). */
 .app-reader {
   position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--app-bg);
+  background: var(--app-sala);
 }
 
 /* Voltar à biblioteca — pílula de papel flutuante sobre a mesa (T10). */
@@ -33,27 +28,52 @@
   gap: 8px;
   min-height: 40px;
   padding: 0 16px;
-  border-radius: var(--app-pill, 999px);
-  background: color-mix(in srgb, var(--app-papel, #faf3e2) 92%, transparent);
-  color: var(--app-tinta, #2a1e14);
+  border-radius: var(--app-pill);
+  background: color-mix(in srgb, var(--app-papel) 92%, transparent);
+  color: var(--app-tinta);
   font-family: var(--app-font);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  box-shadow: var(--app-shadow-2, 0 14px 34px -12px rgba(16, 8, 2, .55));
-  transition: transform var(--app-dur-fast, 140ms) var(--app-ease, ease), filter var(--app-dur-fast, 140ms) var(--app-ease, ease);
+  box-shadow: var(--app-shadow-2);
+  transition: transform var(--app-dur-fast) var(--app-ease), filter var(--app-dur-fast) var(--app-ease);
 }
 .app-reader__back:hover { filter: brightness(1.03); transform: translateY(-1px); }
-.app-reader__back:focus-visible {
-  outline: 3px solid var(--app-salvia, #5f7f4c);
-  outline-offset: 3px;
-}
-@media (prefers-reduced-motion: reduce) {
-  .app-reader__back { transition: none; }
-}
+.app-reader__back:focus-visible { outline: 3px solid var(--app-salvia-clara); outline-offset: 3px; }
 
-/* Estados de página inteira do leitor (carregando / não encontrado): centralizados,
-   não texto solto no topo. Compartilham o layout com os estados do import. */
+/* Afordância de volume vazio: banner de papel sobreposto (não afeta a altura do motor). */
+.app-reader__empty {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(16px, 4vh, 40px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: var(--app-pill);
+  background: color-mix(in srgb, var(--app-papel) 94%, transparent);
+  color: var(--app-tinta);
+  box-shadow: var(--app-shadow-2);
+  font-family: var(--app-font);
+  font-size: 14px;
+}
+.app-reader__empty a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: var(--app-pill);
+  background: var(--app-brasa);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.app-reader__empty a:hover { filter: brightness(1.08); }
+
+/* ------------------------------------------------- páginas e estados (a sala) */
+
 .app-reader--loading,
 .app-reader--notfound,
 .app-import--loading,
@@ -67,9 +87,11 @@
   min-height: 100vh;
   box-sizing: border-box;
   padding: clamp(24px, 6vw, 72px);
-  background: var(--app-bg);
-  color: var(--app-paper);
-  font-family: Inter, system-ui, sans-serif;
+  background:
+    radial-gradient(120% 70% at 50% -8%, rgba(255, 236, 198, .16), transparent 46%),
+    linear-gradient(180deg, var(--app-sala-2), var(--app-sala) 62%, #1a0f07);
+  color: var(--app-creme);
+  font-family: var(--app-font);
 }
 
 .app-reader--loading,
@@ -77,60 +99,7 @@
 .app-import--loading,
 .app-import--notfound,
 .app-import--conflict,
-.app-import--working {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  text-align: center;
-}
-
-.app-reader--loading,
-.app-import--loading,
-.app-import--working {
-  color: var(--app-ink-soft, #9aa0a8);
-}
-
-/* Afordância de volume vazio (SHELL-05): banner sobreposto, sem afetar a altura do
-   motor (por isso `position:absolute` sobre `.app-reader` relative). */
-.app-reader__empty {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(16px, 4vh, 40px);
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--app-paper) 94%, transparent);
-  color: var(--app-ink);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
-  font-family: Inter, system-ui, sans-serif;
-  font-size: 14px;
-}
-
-.app-reader__empty a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 0 16px;
-  border-radius: 999px;
-  background: var(--app-accent);
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.app-reader__empty a:hover {
-  filter: brightness(1.08);
-}
-
-/* --------------------------------------------------- páginas de formulário */
-
-/* Um cartão de papel centralizado sobre o fundo escuro, para criar/importar. */
+.app-import--working,
 .app-new,
 .app-new--created,
 .app-import,
@@ -143,12 +112,14 @@
   text-align: center;
 }
 
+.app-reader--loading,
+.app-import--loading,
+.app-import--working { color: var(--app-creme-suave); }
+
 .app-new > *,
 .app-new--created > *,
 .app-import > *,
-.app-import--result > * {
-  width: min(520px, 100%);
-}
+.app-import--result > * { width: min(520px, 100%); }
 
 .app-new h1,
 .app-new--created h1,
@@ -156,10 +127,11 @@
 .app-import--result h1,
 .app-reader--notfound h1,
 .app-import--notfound h1 {
-  font-family: Fraunces, Georgia, serif;
+  font-family: var(--app-display);
   font-size: clamp(26px, 4vw, 40px);
   font-weight: 600;
   margin: 0;
+  color: var(--app-creme);
 }
 
 .app-new p,
@@ -168,11 +140,11 @@
 .app-reader--notfound p,
 .app-import--notfound p {
   margin: 0;
-  color: color-mix(in srgb, var(--app-paper) 78%, transparent);
+  color: var(--app-creme-suave);
   line-height: 1.5;
 }
 
-/* Campo (label + select) da criação. */
+/* Campo (label + select). */
 .app-new__field {
   display: flex;
   flex-direction: column;
@@ -180,60 +152,52 @@
   text-align: left;
   font-weight: 600;
 }
-
 .app-new__field select,
 .app-import__pick {
   min-height: 44px;
   padding: 0 14px;
   border-radius: var(--app-radius);
-  border: 1px solid var(--app-line);
-  background: var(--app-paper);
-  color: var(--app-ink);
+  border: 1px solid var(--app-papel-borda);
+  background: var(--app-papel);
+  color: var(--app-tinta);
   font: inherit;
 }
 
-/* Botões de ação: pílula de acento, alvo de toque 44px. */
+/* Botões de ação: pílula de brasa, alvo 44px. */
 .app-new button,
 .app-new--created button,
 .app-import button {
   min-height: 44px;
   padding: 0 22px;
   border: 0;
-  border-radius: 999px;
-  background: var(--app-accent);
+  border-radius: var(--app-pill);
+  background: linear-gradient(180deg, var(--app-brasa-clara), var(--app-brasa));
   color: #fff;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
-
 .app-new button:hover:not(:disabled),
 .app-new--created button:hover,
-.app-import button:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-
+.app-import button:hover:not(:disabled) { filter: brightness(1.07); }
 .app-new button:disabled,
-.app-import button:disabled {
-  opacity: 0.55;
-  cursor: default;
-}
+.app-import button:disabled { opacity: 0.5; cursor: default; }
 
-/* Link de resgate: destacado e sem estourar a largura (SHELL-03 AC4). */
+/* Link de resgate: destacado, sem estourar a largura. */
 .app-new__rescue {
   display: block;
   width: min(520px, 100%);
   padding: 12px 14px;
   border-radius: var(--app-radius);
-  background: color-mix(in srgb, var(--app-paper) 10%, transparent);
-  color: var(--app-paper);
+  background: color-mix(in srgb, var(--app-creme) 10%, transparent);
+  color: var(--app-creme);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 13px;
   overflow-wrap: anywhere;
   text-align: left;
 }
 
-/* Alvo de drop da importação: claramente delimitado. */
+/* Alvo de drop da importação. */
 .app-import__drop {
   display: flex;
   flex-direction: column;
@@ -242,35 +206,31 @@
   gap: 8px;
   min-height: 180px;
   padding: 24px;
-  border: 2px dashed color-mix(in srgb, var(--app-paper) 40%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--app-creme) 40%, transparent);
   border-radius: var(--app-radius);
-  color: color-mix(in srgb, var(--app-paper) 80%, transparent);
+  color: var(--app-creme-suave);
   cursor: pointer;
-  transition: border-color 0.14s ease, background 0.14s ease;
+  transition: border-color var(--app-dur-fast) var(--app-ease), background var(--app-dur-fast) var(--app-ease);
 }
-
 .app-import__drop:hover,
 .app-import__drop.is-over {
-  border-color: var(--app-accent);
-  background: color-mix(in srgb, var(--app-accent) 10%, transparent);
+  border-color: var(--app-brasa-clara);
+  background: color-mix(in srgb, var(--app-brasa) 12%, transparent);
 }
 
 .app-import__failures {
   text-align: left;
   font-size: 14px;
-  color: color-mix(in srgb, var(--app-paper) 78%, transparent);
+  color: var(--app-creme-suave);
 }
 
-/* Links de texto (voltar à estante, etc.) e anel de foco em todos os controles das
-   cascas (LIB-04 AC4 / AD-019), que o `ui.css` só cobria na estante/side menu. */
+/* Links de texto e anel de foco em todos os controles das cascas (AD-019). */
 .app-reader--notfound a,
 .app-import--notfound a,
-.app-new--created a {
-  color: var(--app-accent);
-  font-weight: 600;
-}
+.app-new--created a { color: var(--app-brasa-clara); font-weight: 600; }
 
 .app-reader a:focus-visible,
+.app-reader__back:focus-visible,
 .app-reader__empty a:focus-visible,
 .app-new a:focus-visible,
 .app-new button:focus-visible,
@@ -279,8 +239,13 @@
 .app-new--created button:focus-visible,
 .app-import a:focus-visible,
 .app-import button:focus-visible,
-.app-import label:focus-within {
-  outline: 3px solid var(--app-accent);
+.app-import__drop:focus-visible {
+  outline: 3px solid var(--app-salvia-clara);
   outline-offset: 3px;
   border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-reader__back,
+  .app-import__drop { transition: none; }
 }
